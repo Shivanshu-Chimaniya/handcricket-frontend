@@ -9,29 +9,17 @@ import {io} from "socket.io-client";
 function App() {
 	let [socket, setSocket] = useState(null);
 	let [playerName, setPlayerName] = useState("");
-	const [roomCode, setRoomCode] = useState(""); // tossing, handcricket, result
+	const [roomCode, setRoomCode] = useState("");
 
-	let getSocket = () => {
-		console.log("socket");
-		if (socket == null) {
+	useEffect(() => {
+		try {
 			let newSocket = io("http://localhost:3000/");
+
 			setSocket(newSocket);
-			return newSocket;
+		} catch (err) {
+			console.log("Server error please try later!");
 		}
-		return socket;
-	};
-
-	useEffect(() => {
-		let newSocket = io("http://localhost:3000/");
-		setSocket(newSocket);
 	}, []);
-
-	useEffect(() => {
-		if (!socket) return;
-		if (roomCode === "") return;
-		socket.on("tossing", setGamePhase("tossing"));
-		socket.on("game_aborted", setGamePhase("aborted"));
-	}, [socket]);
 
 	const getPlayerName = () => {
 		return playerName;
@@ -56,7 +44,6 @@ function App() {
 							element={
 								<Lobby
 									socket={socket}
-									getSocket={getSocket}
 									getPlayerName={getPlayerName}
 									changePlayerName={changePlayerName}
 									getRoomCode={getRoomCode}
@@ -69,7 +56,6 @@ function App() {
 							element={
 								<Game
 									socket={socket}
-									getSocket={getSocket}
 									changePlayerName={changePlayerName}
 									getPlayerName={getPlayerName}
 									getRoomCode={getRoomCode}
