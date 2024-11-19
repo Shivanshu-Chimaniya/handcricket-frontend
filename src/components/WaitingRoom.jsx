@@ -68,7 +68,7 @@ const WaitingRoom = ({getRoomCode, socket}) => {
 	};
 
 	return (
-		<div className="relative overflow-hidden min-w-96">
+		<div className="relative min-w-96">
 			{/* Stadium Background Elements */}
 			{/* <div className="absolute inset-0 overflow-hidden">
 				<div className="absolute w-20 h-20 bg-blue-200 rounded-full opacity-20 animate-bounce top-20 left-1/4" />
@@ -100,15 +100,15 @@ const WaitingRoom = ({getRoomCode, socket}) => {
 				</div>
 
 				{/* Players List */}
-				<div className="bg-gray-700/40 backdrop-blur-sm rounded-xl p-6 mb-8">
-					<h2 className="text-xl font-bold text-gray-800 animate-fade-in mb-4">
+				<div className="bg-black/50 backdrop-blur-sm rounded-xl p-6 mb-8">
+					<h2 className="text-xl font-bold text-white animate-fade-in mb-4">
 						Players
 					</h2>
 					<div className="space-y-4">
 						{typeof players[0] !== "undefined" ? (
 							<div
 								key={players[0].id}
-								className="flex items-center justify-between bg-white/5 p-4 rounded-lg hover:bg-gray/90 transition-all transform hover:scale-101">
+								className="flex items-center justify-between bg-black/5  hover:bg-black/20  p-4 rounded-lg transition-all transform ">
 								<div className="flex items-center space-x-3">
 									<Crown className="text-yellow-400 w-6 h-6" />
 
@@ -120,7 +120,7 @@ const WaitingRoom = ({getRoomCode, socket}) => {
 						) : (
 							<div
 								key={0}
-								className="flex items-center justify-between bg-white/5 p-4 rounded-lg hover:bg-gray/90 transition-all transform hover:scale-101">
+								className="flex items-center justify-between bg-black/5 p-4 rounded-lg hover:bg-black/20 transition-all transform ">
 								<div className="flex items-center space-x-3">
 									<span className="text-white font-medium">
 										Player 1
@@ -133,7 +133,7 @@ const WaitingRoom = ({getRoomCode, socket}) => {
 						{typeof players[1] !== "undefined" ? (
 							<div
 								key={players[1].id}
-								className="flex items-center justify-between bg-white/5 p-4 rounded-lg hover:bg-gray/90 transition-all transform hover:scale-101">
+								className="flex items-center justify-between bg-black/5  hover:bg-black/20   p-4 rounded-lg hover:bg-gray/90 transition-all transform ">
 								<div className="flex items-center space-x-3">
 									<span className="text-white font-medium">
 										{players[1].name}
@@ -143,7 +143,7 @@ const WaitingRoom = ({getRoomCode, socket}) => {
 						) : (
 							<div
 								key={1}
-								className="flex items-center justify-between bg-white/5 p-4 rounded-lg hover:bg-gray/90 transition-all transform hover:scale-101">
+								className="flex items-center justify-between bg-black/5  hover:bg-black/20   p-4 rounded-lg hover:bg-gray/90 transition-all transform ">
 								<div className="flex items-center space-x-3">
 									<span className="text-white font-medium">
 										Player 2
@@ -164,7 +164,7 @@ const WaitingRoom = ({getRoomCode, socket}) => {
 								Start Game
 							</button>
 						) : (
-							<span className="text-xl text-gray-800 animate-fade-in">
+							<span className="text-xl text-gray-800 font-extrabold animate-fade-in">
 								Waiting for leader to start
 							</span>
 						)}

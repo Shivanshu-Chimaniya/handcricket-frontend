@@ -9,15 +9,24 @@ import {io} from "socket.io-client";
 function App() {
 	let [socket, setSocket] = useState(null);
 	const [roomCode, setRoomCode] = useState("");
+
 	let URL = import.meta.env.VITE_BACKENDURL;
 
 	useEffect(() => {
-		try {
-			let newSocket = io(`${URL}/`);
-			setSocket(newSocket);
-		} catch (err) {
-			console.log("Server error please try later!");
-		}
+		let connect = async () => {
+			try {
+				let response = await fetch(`${URL}`);
+				let json = await response.json();
+				console.log(json);
+
+				let newSocket = io(`${URL}/`);
+				setSocket(newSocket);
+				alert("we're connected to server!");
+			} catch (err) {
+				console.log(err);
+			}
+		};
+		connect();
 	}, []);
 
 	const getRoomCode = () => {

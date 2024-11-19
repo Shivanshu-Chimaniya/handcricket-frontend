@@ -129,11 +129,16 @@ const ResultsModal = ({players, game, isPlayer1}) => {
 
 				{/* Action Buttons */}
 				<div className="flex gap-4">
-					<button className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-semibold transition-colors">
+					{/* <button className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-semibold transition-colors">
 						Home
 					</button>
 					<button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors">
 						Rematch
+					</button> */}
+					<button
+						className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+						disabled={true}>
+						Refresh karle bhai
 					</button>
 				</div>
 			</div>

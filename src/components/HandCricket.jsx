@@ -220,7 +220,10 @@ const HandCricket = ({getRoomCode, socket}) => {
 	return (
 		<div className="relative grow my-6">
 			<div className="relative z-10 w-full flex justify-between items-center">
-				<div className="py-4 pe-6 ps-0 rounded-r-md bg-black/30 backdrop-blur-sm text-white font-bold">
+				<div
+					className={`py-4 pe-6 ps-0 rounded-r-md ${
+						isPlayer1 ? "bg-blue-500" : "bg-rose-600"
+					} backdrop-blur-sm text-white font-bold`}>
 					<span className="ps-4 pe-2">{players[0].name}</span>
 					<img
 						className="BattingBallingSymbol"
@@ -241,7 +244,10 @@ const HandCricket = ({getRoomCode, socket}) => {
 						</p>
 					</div>
 				)}
-				<div className="py-4 ps-6 pe-0 rounded-l-md bg-black/30 backdrop-blur-sm text-white font-bold">
+				<div
+					className={`py-4 ps-6 pe-0 rounded-l-md ${
+						isPlayer1 ? "bg-rose-600" : "bg-blue-500"
+					} backdrop-blur-sm text-white font-bold`}>
 					<img
 						className="BattingBallingSymbol"
 						src={gameCopy.battingTurn == 1 ? bat : ball}
@@ -285,56 +291,96 @@ const HandCricket = ({getRoomCode, socket}) => {
 				</div>
 			</div>
 
-			<div className="relative z-10 w-full flex justify-between items-center bg-white/80 backdrop-blur-sm">
-				<div className="py-3 grow text-gray-800 font-bold ">
-					<p className="ps-4 pe-2 py-1">
-						{players[0].name}
-						{"    "}
-						{gameCopy.scores[0]}
-						{"    "}
-						<span className="font-semibold">
-							{gameCopy.spans[0]}
-						</span>
+			<div className="relative z-10 w-full flex justify-between items-center bg-white/40 backdrop-blur-sm border-y-8 border-white/20 h-20">
+				<div className="ps-2 grow text-gray-800 font-bold flex">
+					<p>
+						{gameCopy.battingTurn == 0 && (
+							<img
+								className="BattingBallingSymbol2"
+								src={bat}
+								alt="*"
+							/>
+						)}
+						<br />
+						{gameCopy.battingTurn == 1 && (
+							<img
+								className="BattingBallingSymbol2"
+								src={bat}
+								alt="*"
+							/>
+						)}
 					</p>
-					<p className="ps-4 pe-2 py-1">
+					<p className="px-2">
+						{players[0].name} <br />
 						{players[1].name}
-						{"    "}
-						{gameCopy.scores[1]}
-						{"    "}
-						<span className="font-semibold">
-							{gameCopy.spans[1]}
-						</span>
+					</p>
+					<p className="px-2">
+						{gameCopy.scores[0]} <br /> {gameCopy.scores[1]}
+					</p>
+					<p className="px-2 font-semibold ">
+						{gameCopy.spans[0]} <br /> {gameCopy.spans[1]}
 					</p>
 				</div>
-				<div className="py-3 grow text-gray-800 font-bold text-end">
-					<p className="ps-2 pe-4 py-1">
-						{last10Balls.length == 0 ? (
-							<></>
+				<div
+					className="grow-0"
+					style={{
+						position: "absolute",
+						top: "50%",
+						left: "50%",
+						background: "red",
+					}}>
+					<div
+						className="bg-red-600/100 backdrop-blur-sm border-4 border-white/20"
+						style={{
+							position: "absolute",
+							width: "100px",
+							aspectRatio: "1/1",
+							transform: "translate(-50%, -50%) rotate(45deg)",
+							borderRadius: "1rem",
+						}}></div>
+					<p
+						style={{
+							position: "absolute",
+							transform: "translate(-50%, -50%)",
+							top: "50%",
+							left: "50%",
+							textAlign: "center",
+							color: "white",
+							fontWeight: "600",
+						}}>
+						{gameCopy.isFirstInnings ? (
+							<>
+								<span style={{fontSize: "0.75rem"}}>
+									Runs&nbsp;Scored
+								</span>
+								<p style={{fontSize: "1.25rem"}}>
+									{gameCopy.scores[gameCopy.battingTurn]}
+								</p>
+							</>
 						) : (
 							<>
-								Player 1:
-								{last10Balls.map((el) => (
-									<span key={el.index} className="Balls">
-										{el.player1}
-									</span>
-								))}
+								<span style={{fontSize: "0.75rem"}}>
+									Runs&nbsp;left
+								</span>
+								<p style={{fontSize: "1.25rem"}}>
+									{gameCopy.scores[gameCopy.battingTurn] <
+									gameCopy.targetScore
+										? gameCopy.targetScore -
+										  gameCopy.scores[gameCopy.battingTurn]
+										: 0}
+								</p>
 							</>
 						)}
 					</p>
-					<p className="ps-2 pe-4 py-1">
-						{last10Balls.length == 0 ? (
-							<></>
-						) : (
-							<>
-								Player 2:
-								{last10Balls.map((el) => (
-									<span key={el.index} className="Balls">
-										{el.player2}
-									</span>
-								))}
-							</>
-						)}
-					</p>
+				</div>
+				<div className="py-1  pe-3 grow text-gray-800 font-bold flex flex-row-reverse">
+					{last10Balls.length > 0 &&
+						last10Balls.map((el, index) => (
+							<p key={index} className="ps-1 gap-1 flex flex-col">
+								<span className="Balls">{el.player1}</span>
+								<span className="Balls">{el.player2}</span>
+							</p>
+						))}
 				</div>
 			</div>
 			{switchingInnings && (
@@ -358,5 +404,3 @@ const HandCricket = ({getRoomCode, socket}) => {
 };
 
 export default HandCricket;
-
-// curr ball reset when out

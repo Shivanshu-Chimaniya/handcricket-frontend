@@ -9,7 +9,7 @@ const TossingStage = ({getRoomCode, socket}) => {
 		{socketId: 1, name: "Player 1"},
 		{socketId: 2, name: "Player 2"},
 	]);
-	const [isLeader, setIsLeader] = useState(true);
+	const [isPlayer1, setIsPlayer1] = useState(true);
 
 	const [player1Choice, setPlayer1Choice] = useState(-1);
 	const [player2Choice, setPlayer2Choice] = useState(-1);
@@ -19,11 +19,10 @@ const TossingStage = ({getRoomCode, socket}) => {
 	const [winner, setWinner] = useState(-1);
 	const [displayChoice, setDisplayChoice] = useState(false);
 	const [winnerFound, setWinnerFound] = useState(false);
-	const [timer, setTimer] = useState(3);
+	const [timer, setTimer] = useState(10);
 	const [wantsBatting, setWantsBatting] = useState(null);
 
 	const navigate = useNavigate();
-	let hasSentReq = false;
 
 	let URL = import.meta.env.VITE_BACKENDURL;
 	const choices = ["rock", "paper", "scissors"];
@@ -49,7 +48,7 @@ const TossingStage = ({getRoomCode, socket}) => {
 			});
 			let game = await res.json();
 			setPlayers(game.players);
-			setIsLeader(game.leader === socket.id);
+			setIsPlayer1(game.leader === socket.id);
 		};
 		fetchGame();
 
@@ -76,13 +75,26 @@ const TossingStage = ({getRoomCode, socket}) => {
 			setPlayer2Choice(getFingers(p2choice));
 
 			let fn = async () => {
+				setTimer(10);
+				await wait(1000);
+				setTimer(9);
+				await wait(1000);
+				setTimer(8);
+				await wait(1000);
+				setTimer(7);
+				await wait(1000);
+				setTimer(6);
+				await wait(1000);
+				setTimer(5);
+				await wait(1000);
+				setTimer(4);
+				await wait(1000);
 				setTimer(3);
 				await wait(1000);
 				setTimer(2);
 				await wait(1000);
 				setTimer(1);
 				await wait(1000);
-				setTimer(0);
 
 				if (socket.id === winner.socketId) {
 					if (wantsBatting === null) {
@@ -142,20 +154,6 @@ const TossingStage = ({getRoomCode, socket}) => {
 			});
 		}
 	};
-	// const handleWantsBatting = async (newChoice) => {
-	// 	console.log(
-	// 		`${wantsBatting} was wants batting, updated wants batting to ${newChoice}`
-	// 	);
-	// 	if (wantsBatting === null) {
-	// 		setWantsBatting(newChoice);
-	// 		socket.emit("player-wants-to", {
-	// 			roomCode: getRoomCode(),
-	// 			choice: newChoice,
-	// 		});
-	// 	} else {
-	// 		console.log("Alrready sent a req");
-	// 	}
-	// };
 	const handleWantsBatting = async (newChoice) => {
 		if (wantsBatting === null) {
 			setWantsBatting(newChoice); // Update state
@@ -169,12 +167,24 @@ const TossingStage = ({getRoomCode, socket}) => {
 	};
 
 	return (
-		<div className="relative overflow-hidden grow my-6">
+		<div className="relative grow my-6">
 			<div className="relative z-10 w-full flex justify-between items-center">
-				<div className="py-4 pe-6 ps-0 rounded-r-md bg-black/30 backdrop-blur-sm text-white font-bold">
+				<div
+					className={`py-4 pe-6 ps-0 rounded-r-md ${
+						isPlayer1 ? "bg-blue-500" : "bg-rose-600"
+					} backdrop-blur-sm text-white font-bold`}>
 					<span className="ps-4">{players[0].name}</span>
 				</div>
-				<div className="py-4 ps-6 pe-0 rounded-l-md bg-black/30 backdrop-blur-sm text-white font-bold">
+				<div>
+					<p className="ps-4 pe-2 py-1 text-xl font-extrabold">
+						Tossing
+					</p>
+				</div>
+
+				<div
+					className={`py-4 ps-6 pe-0 rounded-l-md ${
+						isPlayer1 ? "bg-rose-600" : "bg-blue-500"
+					} backdrop-blur-sm text-white font-bold`}>
 					<span className="pe-4">{players[1].name}</span>
 				</div>
 			</div>
@@ -187,7 +197,7 @@ const TossingStage = ({getRoomCode, socket}) => {
 
 				{!showResult || (showResult && !winnerFound) ? (
 					<div className="text-center">
-						<h2 className="text-gray-800 text-2xl mb-6">
+						<h2 className="text-gray-800 font-extrabold text-2xl mb-6">
 							{showResult
 								? "It's a Tie! Make Your Choice!"
 								: "Make Your Choice!"}
@@ -200,15 +210,15 @@ const TossingStage = ({getRoomCode, socket}) => {
 										handleTossSelection(choice);
 									}}
 									disabled={selectedChoice !== null}
-									className={`p-6 rounded-xl text-4xl transition-all transform 
+									className={`p-6 rounded-xl text-4xl transition-all transform bg-black/30 backdrop-blur-sm text-white font-bold
                     ${
 						selectedChoice === choice
 							? "bg-green-500 scale-110"
-							: "bg-white/10 hover:bg-white/20 hover:scale-105"
+							: "hover:bg-black/50 hover:scale-105"
 					} 
                     ${
 						selectedChoice && selectedChoice !== choice
-							? "opacity-50"
+							? "opacity-90"
 							: ""
 					}
                   `}>
@@ -228,41 +238,54 @@ const TossingStage = ({getRoomCode, socket}) => {
 							{winnerFound && (
 								<div className="space-y-6">
 									<div className="flex items-center justify-center space-x-3">
-										<Trophy className="text-yellow-400 w-8 h-8" />
-										<h2 className="text-white text-3xl font-bold">
-											{winner} Wins the Toss! {timer} left
+										<Trophy className="text-yellow-400 font-extrabold w-8 h-8 mb-6" />
+										<h2 className="text-gray-800 font-bold text-2xl mb-6">
+											{winner} Wins the Toss!
 										</h2>
 									</div>
 
-									{displayChoice && (
-										<div className="space-y-4">
-											<h3 className="text-white text-xl">
-												Choose Your Side:
-											</h3>
-											<div className="flex justify-center space-x-4">
-												<button
-													onClick={() =>
-														handleWantsBatting(
-															"yes"
-														)
-													}
-													className={`bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transform hover:scale-105 transition-all font-bold
-												${wantsBatting == true && "bg-blue-600 scale-105"}`}>
-													Batting
-												</button>
-												<button
-													onClick={() =>
-														handleWantsBatting("no")
-													}
-													className={`bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg transform hover:scale-105 transition-all font-bold ${
-														wantsBatting == false &&
-														"bg-red-600 scale-105"
-													}`}>
-													Bowling
-												</button>
-											</div>
-										</div>
-									)}
+									<div className="space-y-4">
+										{displayChoice ? (
+											<>
+												<h3 className="text-gray-800 font-bold text-2xl mb-6">
+													Choose Your Side, default
+													balling ({timer}s)
+												</h3>
+												<div className="flex justify-center space-x-4">
+													<button
+														onClick={() =>
+															handleWantsBatting(
+																true
+															)
+														}
+														className={`bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transform hover:scale-105 transition-all font-bold
+													${wantsBatting == true && "bg-blue-600 scale-105"}`}>
+														Batting
+													</button>
+													<button
+														onClick={() =>
+															handleWantsBatting(
+																false
+															)
+														}
+														className={`bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg transform hover:scale-105 transition-all font-bold ${
+															wantsBatting ==
+																false &&
+															"bg-red-600 scale-105"
+														}`}>
+														Bowling
+													</button>
+												</div>
+											</>
+										) : (
+											<>
+												<h3 className="text-gray-800 font-bold text-2xl mb-6">
+													They are choosing ({timer}s
+													left)
+												</h3>
+											</>
+										)}
+									</div>
 								</div>
 							)}
 						</div>

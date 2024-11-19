@@ -158,7 +158,7 @@ export default function Lobby({socket, getRoomCode, changeRoomCode}) {
 	);
 
 	return (
-		<div className="relative overflow-hidden">
+		<div className="relative">
 			{/* Background Animation */}
 			<div className="absolute inset-0 overflow-hidden">
 				<div className="absolute w-20 h-20 bg-blue-200 rounded-full opacity-20 animate-bounce top-20 left-1/4" />
