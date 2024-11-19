@@ -8,25 +8,18 @@ import {io} from "socket.io-client";
 
 function App() {
 	let [socket, setSocket] = useState(null);
-	let [playerName, setPlayerName] = useState("");
 	const [roomCode, setRoomCode] = useState("");
+	let URL = import.meta.env.VITE_BACKENDURL;
 
 	useEffect(() => {
 		try {
-			let newSocket = io("http://localhost:3000/");
-
+			let newSocket = io(`${URL}/`);
 			setSocket(newSocket);
 		} catch (err) {
 			console.log("Server error please try later!");
 		}
 	}, []);
 
-	const getPlayerName = () => {
-		return playerName;
-	};
-	const changePlayerName = (name) => {
-		setPlayerName(name);
-	};
 	const getRoomCode = () => {
 		return roomCode;
 	};
@@ -44,8 +37,6 @@ function App() {
 							element={
 								<Lobby
 									socket={socket}
-									getPlayerName={getPlayerName}
-									changePlayerName={changePlayerName}
 									getRoomCode={getRoomCode}
 									changeRoomCode={changeRoomCode}
 								/>
@@ -56,8 +47,6 @@ function App() {
 							element={
 								<Game
 									socket={socket}
-									changePlayerName={changePlayerName}
-									getPlayerName={getPlayerName}
 									getRoomCode={getRoomCode}
 									changeRoomCode={changeRoomCode}
 								/>

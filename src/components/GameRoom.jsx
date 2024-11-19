@@ -4,14 +4,14 @@ import "./GameRoom.css";
 import HandCricket from "./HandCricket";
 import Tossing from "./Tossing";
 import WaitingRoom from "./WaitingRoom";
+import ResultsModal from "./ResultsModal";
 
 const Game = ({socket, getPlayerName, getRoomCode}) => {
-	const [game, setGame] = useState({});
-	const [players, setPlayers] = useState([]);
 	const [gamePhase, setGamePhase] = useState("waiting"); // waiting, tossing, handCricket, results
-	const [isLeader, setIsLeader] = useState(true);
+
 	const navigate = useNavigate();
-	let url = "http://localhost:3000";
+
+	let URL = import.meta.env.VITE_BACKENDURL;
 
 	useEffect(() => {
 		if (socket == null) {
@@ -23,20 +23,14 @@ const Game = ({socket, getPlayerName, getRoomCode}) => {
 			return;
 		}
 		const fn = async () => {
-			const res = await fetch(url + "/api/game/" + getRoomCode(), {
+			const res = await fetch(URL + "/api/game/" + getRoomCode(), {
 				headers: {
 					"Content-Type": "application/json",
 				},
 			});
-			let json = await res.json();
-			setIsLeader(json.game.leader === socket.id);
-			setGame(game);
+			let game = await res.json();
 		};
-		fn();
-
-		socket.on("game_aborted", () => {
-			alert("you won, he left!!");
-		});
+		// fn();
 
 		socket.on("startGame", () => {
 			setGamePhase("tossing");
@@ -48,50 +42,17 @@ const Game = ({socket, getPlayerName, getRoomCode}) => {
 		return () => socket.disconnect();
 	}, []);
 
-	const handleChangePlayers = (players) => {
-		setPlayers(players);
-	};
-	const handleStartHandCricket = () => {
-		if (socket == null) {
-			navigate("/");
-			return;
-		}
-		if (getRoomCode() == "") {
-			navigate("/");
-			return;
-		}
-		if (isLeader)
-			socket.emit("reqStartHandCricket", {roomCode: getRoomCode()});
-	};
 	return (
 		<>
 			{gamePhase === "waiting" && (
-				<WaitingRoom
-					handleChangePlayers={handleChangePlayers}
-					players={players}
-					getRoomCode={getRoomCode}
-					socket={socket}
-					game={game}
-				/>
+				<WaitingRoom getRoomCode={getRoomCode} socket={socket} />
 			)}
 			{gamePhase === "tossing" && (
-				<Tossing
-					getRoomCode={getRoomCode}
-					socket={socket}
-					game={game}
-					players={players}
-					handleStartHandCricket={handleStartHandCricket}
-				/>
+				<Tossing getRoomCode={getRoomCode} socket={socket} />
 			)}
 
 			{gamePhase == "handCricket" && (
-				<HandCricket
-					getRoomCode={getRoomCode}
-					socket={socket}
-					game={game}
-					players={players}
-					handleStartHandCricket={handleStartHandCricket}
-				/>
+				<HandCricket getRoomCode={getRoomCode} socket={socket} />
 			)}
 		</>
 	);

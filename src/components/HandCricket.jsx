@@ -5,120 +5,39 @@ import bat from "../assets/bat.png";
 import "./HandCricket.css";
 import Lefthand from "./Lefthand";
 import Righthand from "./Righthand";
-
-const Modal = ({isOpen, onClose, title, children, navigate}) => {
-	if (!isOpen) return null;
-
-	return (
-		<div className="z-50 fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-			<div className="bg-white rounded-lg p-6 max-w-lg w-full m-4">
-				<div className="flex justify-between items-center mb-4">
-					<h2 className="text-2xl font-bold">{title}</h2>
-					<button
-						onClick={() => {
-							onClose();
-							navigate("/");
-						}}
-						className="text-gray-500 hover:text-gray-700">
-						<b>X</b>
-					</button>
-				</div>
-				{children}
-			</div>
-		</div>
-	);
-};
-
-const ResultModal = ({isOpen, onClose, navigate, results}) => (
-	<Modal isOpen={isOpen} onClose={onClose} navigate={navigate} title="Result">
-		{results.winnerId == -1 && results.loserId == -1 ? (
-			<div className="space-y-4">
-				<div className="flex items-center space-x-4 p-2 bg-gray-50 rounded">
-					<div className="flex-grow">
-						<div className="font-semibold">
-							{results.players[results.winnerId].name} Drew
-						</div>
-						<div className="text-sm text-gray-500">
-							{results.scores[results.winnerId]} runs ·{" "}
-							{results.spans[results.winnerId]} balls
-						</div>
-					</div>
-				</div>
-				<div className="flex items-center space-x-4 p-2 bg-gray-50 rounded">
-					<div className="flex-grow">
-						<div className="font-semibold">
-							{results.players[results.loserId].name} Drew
-						</div>
-						<div className="text-sm text-gray-500">
-							{results.scores[results.loserId]} runs ·{" "}
-							{results.spans[results.loserId]} balls
-						</div>
-					</div>
-				</div>
-			</div>
-		) : (
-			<div className="space-y-4">
-				<div className="flex items-center space-x-4 p-2 bg-gray-50 rounded">
-					<div className="flex-grow">
-						<div className="font-semibold">
-							{results.players[results.winnerId].name} Won
-						</div>
-						<div className="text-sm text-gray-500">
-							{results.scores[results.winnerId]} runs ·{" "}
-							{results.spans[results.winnerId]} balls
-						</div>
-					</div>
-				</div>
-				<div className="flex items-center space-x-4 p-2 bg-gray-50 rounded">
-					<div className="flex-grow">
-						<div className="font-semibold">
-							{results.players[results.loserId].name} Lost
-						</div>
-						<div className="text-sm text-gray-500">
-							{results.scores[results.loserId]} runs ·{" "}
-							{results.spans[results.loserId]} balls
-						</div>
-					</div>
-				</div>
-			</div>
-		)}
-	</Modal>
-);
+import HalfTimeModal from "./HalfTimeModal";
+import ResultsModal from "./ResultsModal";
 
 const HandCricket = ({getRoomCode, socket}) => {
 	const [players, setPlayers] = useState([
 		{socketId: 1, name: "Player 1"},
 		{socketId: 2, name: "Player 2"},
 	]);
-	const [isLeader, setIsLeader] = useState(true);
+	const [gameCopy, setGameCopy] = useState({
+		targetScore: -1,
+		battingTurn: -1,
+		isFirstInnings: null,
+		scores: [0, 0],
+		firstInning: [],
+		secondInning: [],
+		spans: [0, 0],
+	});
+	const [isPlayer1, setIsPlayer1] = useState(false);
 
 	const [player1Choice, setPlayer1Choice] = useState(-1);
 	const [player2Choice, setPlayer2Choice] = useState(-1);
 	const [selectedChoice, setSelectedChoice] = useState(-1);
 
-	const [targetScore, setTargetScore] = useState(0);
-	const [battingTurn, setBattingTurn] = useState(-1);
-	const [isBatting, setIsBatting] = useState(false);
-	const [isFirstInning, setIsFirstInning] = useState(true);
-
-	const [score, setScore] = useState([0, 0]);
 	const [last10Balls, setLast10Balls] = useState([]);
-	const [spans, setSpans] = useState([0, 0]);
 
 	const [gameConcluded, setGameConcluded] = useState(false);
-	const [results, setResults] = useState({
-		winnerId: 1,
-		loserId: 0,
-		scores: [0, 0],
-		players: [{name: "player 1"}, {name: "player 2"}],
-		spans: [0, 0],
-	});
 
 	const [blockUpdates, setBlockUpdates] = useState(false);
+	const [switchingInnings, setSwitchingInnings] = useState(false);
 
 	const navigate = useNavigate();
 
-	let url = "http://localhost:3000";
+	let URL = import.meta.env.VITE_BACKENDURL;
 	const choices = [1, 2, 3, 4, 5, 6];
 
 	function wait(ms) {
@@ -135,109 +54,117 @@ const HandCricket = ({getRoomCode, socket}) => {
 			return;
 		}
 		let fetchGame = async () => {
-			const res = await fetch(url + "/api/game/" + getRoomCode(), {
+			const res = await fetch(URL + "/api/game/" + getRoomCode(), {
 				headers: {
 					"Content-Type": "application/json",
 				},
 			});
-			let json = await res.json();
-			setPlayers(json.game.players);
-			setIsLeader(json.game.leader === socket.id);
-			setIsBatting(
-				json.game.players[json.game.battingTurn].socketId == socket.id
-			);
-			setBattingTurn(json.game.battingTurn);
+			let game = await res.json();
+			setPlayers(game.players);
+			setIsPlayer1(game.leader === socket.id);
+			console.log(game.tossWinner, game.battingTurn);
+
+			setGameCopy((prev) => ({
+				...prev,
+				scores: game.scores,
+				firstInning: game.firstInning,
+				secondInning: game.secondInning,
+				spans: game.spans,
+				targetScore: game.targetScore,
+				battingTurn: game.battingTurn,
+				isFirstInnings: true,
+			}));
 		};
 		fetchGame();
 
 		socket.on("game_aborted", () => {
+			if (gameConcluded) return;
+			alert("you won, he left!!");
 			navigate("/");
 			return;
-			// alert("you won, he left!!");
 		});
 
-		socket.on("resetMoves", () => {
-			if (gameConcluded) return;
-			setPlayer1Choice(-1);
-			setPlayer2Choice(-1);
-		});
 		socket.on("out", async ({game, move1, move2}) => {
-			if (gameConcluded) return;
+			console.log(game);
 
-			updateGame(move1, move2, game.scores, game.spans);
-			let inning = game.firstInning;
-			if (!isFirstInning) {
-				inning = game.secondInning;
-			}
-			updateGame2(inning);
+			await updateGame(game, move1, move2);
 
 			setBlockUpdates(true);
 			await wait(1000);
-			alert("batsmen out");
-			setIsBatting((prev) => !prev);
-			setBattingTurn((battingTurn) => (battingTurn == 0 ? 1 : 0));
-			setIsFirstInning(false);
-			setTargetScore(game.targetScore);
-			setBlockUpdates(false);
-			setLast10Balls([]);
+			setSwitchingInnings(true);
+		});
+
+		socket.on("start-second-inning", async ({game}) => {
+			setSwitchingInnings(false);
+			console.log("start second inning..");
+			if (!game) {
+				navigate("/");
+				return;
+			}
+
 			setPlayer1Choice(-1);
 			setPlayer2Choice(-1);
-			console.log("batsmen out");
+			setSelectedChoice(-1);
+
+			setGameCopy((prev) => ({
+				...prev,
+				scores: game.scores,
+				firstInning: game.firstInning,
+				secondInning: game.secondInning,
+				spans: game.spans,
+				targetScore: game.targetScore,
+				battingTurn: game.battingTurn,
+				isFirstInnings: false,
+			}));
+
+			setBlockUpdates(false);
+			setLast10Balls([]);
+			console.log(gameCopy);
+		});
+
+		socket.on("gameover", async ({game, move1, move2}) => {
+			console.log(game);
+
+			await updateGame(game, move1, move2);
+			setBlockUpdates(true);
+
+			await wait(1000);
+
+			setPlayer1Choice(-1);
+			setPlayer2Choice(-1);
+			setSelectedChoice(-1);
+			setGameCopy((prev) => ({
+				...prev,
+				gameWinner: game.gameWinner,
+			}));
+			setGameConcluded(true);
 		});
 
 		socket.on("updateGame", async ({game, move1, move2}) => {
 			if (gameConcluded || blockUpdates) return;
 
-			updateGame(move1, move2, game.scores, game.spans);
-
-			let inning = game.firstInning;
-			if (!game.isFirstInnings) {
-				inning = game.secondInning;
-			}
-
-			updateGame2(inning);
-		});
-
-		socket.on("gameover", async ({result, game, move1, move2}) => {
-			updateGame(move1, move2, game.scores, game.spans);
-			let inning = game.firstInning;
-			if (!game.isFirstInnings) {
-				inning = game.secondInning;
-			}
-			updateGame2(inning);
-			await wait(1000);
-			alert("result :", result);
-			let winnerId = -1,
-				loserId = -1;
-			if (result === "chased") {
-				winnerId = game.battingTurn;
-				loserId = (game.battingTurn + 1) % 2;
-			} else if (result === "allout") {
-				winnerId = (game.battingTurn + 1) % 2;
-				loserId = game.battingTurn;
-			} else {
-				console.log("What is Game Result", result);
-			}
-			let players = game.players;
-			let scores = game.scores;
-			let spans = game.spans;
-
-			setResults({winnerId, loserId, players, scores, spans});
-			setGameConcluded(true);
+			await updateGame(game, move1, move2);
 		});
 	}, []);
 
-	const updateGame = (move1, move2, scores, spans) => {
-		setPlayer1Choice(move1);
-		setPlayer2Choice(move2);
-		setScore(scores);
-		setSpans(spans);
-		setSelectedChoice(-1);
-	};
-	const updateGame2 = (inning) => {
-		console.log(inning);
+	const updateGame = async (game, move1, move2) => {
+		setPlayer1Choice(-1);
+		setPlayer2Choice(-1);
+		await wait(200);
+		setGameCopy((prev) => ({
+			...prev,
+			scores: game.scores,
+			firstInning: game.firstInning,
+			secondInning: game.secondInning,
+			spans: game.spans,
+		}));
+
+		let inning = game.firstInning;
+		if (!game.isFirstInnings && game.secondInning.length > 0) {
+			inning = game.secondInning;
+		}
 		let newLast10Balls = [];
-		let start = inning.length - 5;
+		let start = inning.length - 5; // length of displaying previous balls
 		for (let i = start < 0 ? 0 : start; i < inning.length; i++) {
 			newLast10Balls.push({
 				index: i,
@@ -245,7 +172,15 @@ const HandCricket = ({getRoomCode, socket}) => {
 				player2: inning[i].player2,
 			});
 		}
+
+		setPlayer1Choice(move1);
+		setPlayer2Choice(move2);
 		setLast10Balls(newLast10Balls);
+		setTimeout(setSelectedChoice(-1), 300);
+	};
+
+	const switchedInning = async () => {
+		socket.emit("has-seen-results", {roomCode: getRoomCode()});
 	};
 
 	const getHandEmoji = (choice) => {
@@ -284,26 +219,19 @@ const HandCricket = ({getRoomCode, socket}) => {
 
 	return (
 		<div className="relative grow my-6">
-			<ResultModal
-				isOpen={gameConcluded}
-				onClose={() => setGameConcluded(false)}
-				navigate={navigate}
-				results={results}
-			/>
-
 			<div className="relative z-10 w-full flex justify-between items-center">
 				<div className="py-4 pe-6 ps-0 rounded-r-md bg-black/30 backdrop-blur-sm text-white font-bold">
 					<span className="ps-4 pe-2">{players[0].name}</span>
 					<img
 						className="BattingBallingSymbol"
-						src={battingTurn == 0 ? bat : ball}
-						alt={battingTurn == 0 ? "Batting" : "Balling"}
+						src={gameCopy.battingTurn == 0 ? bat : ball}
+						alt={gameCopy.battingTurn == 0 ? "Batting" : "Balling"}
 					/>
 				</div>
-				{!isFirstInning ? (
+				{!gameCopy.isFirstInnings ? (
 					<div>
 						<p className="ps-4 pe-2 py-1 text-xl font-extrabold">
-							Inning 2, Target : {score[0]}
+							Inning 2, Target : {gameCopy.targetScore}
 						</p>
 					</div>
 				) : (
@@ -316,15 +244,15 @@ const HandCricket = ({getRoomCode, socket}) => {
 				<div className="py-4 ps-6 pe-0 rounded-l-md bg-black/30 backdrop-blur-sm text-white font-bold">
 					<img
 						className="BattingBallingSymbol"
-						src={battingTurn == 1 ? bat : ball}
-						alt={battingTurn == 1 ? "Batting" : "Balling"}
+						src={gameCopy.battingTurn == 1 ? bat : ball}
+						alt={gameCopy.battingTurn == 1 ? "Batting" : "Balling"}
 					/>
 					<span className="ps-2 pe-4">{players[1].name}</span>
 				</div>
 			</div>
 
 			<div className="relative z-10 max-w-4xl mx-auto pt-8 px-4 sm:px-0">
-				<div className="flex justify-center items-center space-x-16 mb-12">
+				<div className="flex justify-center items-center space-x-16 mb-12 h-96">
 					<Lefthand choice={player1Choice} />
 					<Righthand choice={player2Choice} />
 				</div>
@@ -362,19 +290,22 @@ const HandCricket = ({getRoomCode, socket}) => {
 					<p className="ps-4 pe-2 py-1">
 						{players[0].name}
 						{"    "}
-						{score[0]}
+						{gameCopy.scores[0]}
 						{"    "}
-						<span className="font-semibold">{spans[0]}</span>
+						<span className="font-semibold">
+							{gameCopy.spans[0]}
+						</span>
 					</p>
 					<p className="ps-4 pe-2 py-1">
 						{players[1].name}
 						{"    "}
-						{score[1]}
+						{gameCopy.scores[1]}
 						{"    "}
-						<span className="font-semibold">{spans[1]}</span>
+						<span className="font-semibold">
+							{gameCopy.spans[1]}
+						</span>
 					</p>
 				</div>
-				<div className="scoreCard"></div>
 				<div className="py-3 grow text-gray-800 font-bold text-end">
 					<p className="ps-2 pe-4 py-1">
 						{last10Balls.length == 0 ? (
@@ -406,8 +337,26 @@ const HandCricket = ({getRoomCode, socket}) => {
 					</p>
 				</div>
 			</div>
+			{switchingInnings && (
+				<HalfTimeModal
+					timer={5}
+					game={gameCopy}
+					players={players}
+					isPlayer1={isPlayer1}
+					switchedInning={switchedInning}
+				/>
+			)}
+			{gameConcluded && (
+				<ResultsModal
+					players={players}
+					game={gameCopy}
+					isPlayer1={isPlayer1}
+				/>
+			)}
 		</div>
 	);
 };
 
 export default HandCricket;
+
+// curr ball reset when out

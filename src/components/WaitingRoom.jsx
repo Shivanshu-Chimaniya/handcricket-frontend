@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Crown, Copy, Loader2} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 
-const WaitingRoom = ({handleChangePlayers, getRoomCode, socket}) => {
+const WaitingRoom = ({getRoomCode, socket}) => {
 	const [copied, setCopied] = useState(false);
 	const [players, setPlayers] = useState([
 		{socketId: 1, name: "Player 1"},
@@ -13,7 +13,7 @@ const WaitingRoom = ({handleChangePlayers, getRoomCode, socket}) => {
 	const roomCode = getRoomCode();
 	const navigate = useNavigate();
 
-	let url = "http://localhost:3000";
+	let URL = import.meta.env.VITE_BACKENDURL;
 	useEffect(() => {
 		if (getRoomCode() == "") {
 			navigate("/");
@@ -24,15 +24,15 @@ const WaitingRoom = ({handleChangePlayers, getRoomCode, socket}) => {
 			return;
 		}
 		let fetchGame = async () => {
-			const res = await fetch(url + "/api/game/" + getRoomCode(), {
+			const res = await fetch(URL + "/api/game/" + getRoomCode(), {
 				headers: {
 					"Content-Type": "application/json",
 				},
 			});
-			let json = await res.json();
-			setPlayers(json.game.players);
-			setIsLeader(json.game.leader === socket.id);
-			if (json.game.players.length === 2) {
+			let game = await res.json();
+			setPlayers(game.players);
+			setIsLeader(game.leader === socket.id);
+			if (game.players.length === 2) {
 				setCanStart(true);
 			}
 		};
@@ -51,9 +51,10 @@ const WaitingRoom = ({handleChangePlayers, getRoomCode, socket}) => {
 		if (!getRoomCode()) {
 			navigate("/");
 		}
-		navigator.clipboard.writeText(roomCode);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
+		navigator.clipboard.writeText(roomCode).then(function () {
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+		});
 	};
 
 	const handleStart = () => {
@@ -63,7 +64,6 @@ const WaitingRoom = ({handleChangePlayers, getRoomCode, socket}) => {
 		if (!getRoomCode()) {
 			navigate("/");
 		}
-		handleChangePlayers(players);
 		socket.emit("startGame", {roomCode: getRoomCode()});
 	};
 
@@ -172,7 +172,7 @@ const WaitingRoom = ({handleChangePlayers, getRoomCode, socket}) => {
 				)}
 
 				{/* Room Code */}
-				<div className="fixed bottom-4 right-4">
+				<div onClick={copyRoomCode} className="fixed bottom-4 right-4">
 					<div className="bg-gray-700/20 backdrop-blur-sm rounded-lg p-4 flex items-center space-x-3">
 						<div>
 							<div className="text-sm text-white/80">
@@ -182,12 +182,15 @@ const WaitingRoom = ({handleChangePlayers, getRoomCode, socket}) => {
 								{roomCode}
 							</div>
 						</div>
-						<button
-							onClick={copyRoomCode}
-							className="p-2 hover:bg-white/10 rounded-lg transition-all"
-							title={copied ? "Copied!" : "Copy room code"}>
-							<Copy className="text-white w-5 h-5" />
-						</button>
+						{!copied ? (
+							<button
+								className="p-2 hover:bg-white/10 rounded-lg transition-all"
+								title={copied ? "Copied!" : "Copy room code"}>
+								<Copy className="text-white w-5 h-5" />
+							</button>
+						) : (
+							<span style={{color: "white"}}>&#10003;</span>
+						)}
 					</div>
 				</div>
 			</div>

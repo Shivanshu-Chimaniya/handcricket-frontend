@@ -34,7 +34,7 @@ const Modal = ({isOpen, onClose, title, children}) => {
 };
 
 const LeaderboardModal = ({isOpen, onClose}) => (
-	<Modal isOpen={isOpen} onClose={onClose} title="Leaderboard">
+	<Modal isOpen={isOpen} onClose={onClose} title="Example Leaderboard">
 		<div className="space-y-4">
 			{[
 				{name: "CricketPro99", wins: 42, highScore: 186, streak: 8},
@@ -61,7 +61,7 @@ const LeaderboardModal = ({isOpen, onClose}) => (
 );
 
 const HowToPlayModal = ({isOpen, onClose}) => (
-	<Modal isOpen={isOpen} onClose={onClose} title="How to Play">
+	<Modal isOpen={isOpen} onClose={onClose} title="Example How to Play">
 		<div className="space-y-4">
 			<div>
 				<h3 className="font-bold mb-2">1. Getting Started</h3>
@@ -88,12 +88,7 @@ const HowToPlayModal = ({isOpen, onClose}) => (
 	</Modal>
 );
 
-export default function Lobby({
-	socket,
-	getRoomCode,
-	changeRoomCode,
-	changePlayerName,
-}) {
+export default function Lobby({socket, getRoomCode, changeRoomCode}) {
 	const [playerName, setPlayerName] = useState("");
 	const [showLeaderboard, setShowLeaderboard] = useState(false);
 	const [showHowToPlay, setShowHowToPlay] = useState(false);
@@ -124,7 +119,6 @@ export default function Lobby({
 
 	const handleCreateGame = async () => {
 		if (!playerName) return alert("Enter your name");
-		changePlayerName(playerName);
 		if (socket == null || !socket.connected)
 			return alert("Server is down! Connection Issue");
 		socket.emit("createGame", {playerName});
@@ -132,8 +126,7 @@ export default function Lobby({
 
 	var handleJoinGame = async () => {
 		if (!playerName) return alert("Enter your name");
-		changePlayerName(playerName);
-		if (!roomCode) return alert("Enter ");
+		if (!roomCode) return alert("Enter a room code");
 		changeRoomCode(roomCode);
 		if (socket == null || !socket.connected)
 			return alert("Server is down! Connection Issue");
@@ -253,35 +246,3 @@ export default function Lobby({
 		</div>
 	);
 }
-
-// const Lobby = ({
-// 	getSocket,
-// 	socket,
-// 	getPlayerName,
-// 	changePlayerName,
-// 	getRoomCode,
-// 	changeRoomCode,
-// }) => {
-// 	return (
-// 		<div className="lobby">
-// 			<h2>Hand Cricket Game</h2>
-// 			<input
-// 				type="text"
-// 				placeholder="Enter your name"
-// 				value={playerName}
-// 				onChange={(e) => setPlayerName(e.target.value)}
-// 			/>
-// 			<button onClick={handleCreateGame}>Create Game</button>
-
-// 			<input
-// 				type="text"
-// 				placeholder="Enter room code"
-// 				value={roomCode}
-// 				onChange={(e) => setRoomCode(e.target.value)}
-// 			/>
-// 			<button onClick={handleJoinGame}>Join Game</button>
-// 		</div>
-// 	);
-// };
-
-// export default Lobby;
