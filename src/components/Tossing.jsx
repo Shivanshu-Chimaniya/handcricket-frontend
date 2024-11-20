@@ -168,7 +168,9 @@ const TossingStage = ({getRoomCode, socket}) => {
 
 	return (
 		<div className="relative grow my-6">
-			<div className="relative z-10 w-full flex justify-between items-center">
+			<div
+				style={{maxWidth: "100vw"}}
+				className="relative z-10  flex justify-between items-center pt-20 sm:pt-4">
 				<div
 					className={`py-4 pe-6 ps-0 rounded-r-md ${
 						isPlayer1 ? "bg-blue-500" : "bg-rose-600"
@@ -189,8 +191,8 @@ const TossingStage = ({getRoomCode, socket}) => {
 				</div>
 			</div>
 
-			<div className="relative z-10 max-w-4xl mx-auto pt-8 px-4 sm:px-0">
-				<div className="flex justify-center items-center space-x-16 mb-12 h-96">
+			<div className="relative z-10 max-w-4xl mx-auto pt-8  pt-20 sm:pt-12">
+				<div className="flex justify-center items-center space-x-16 mb-12 h-80 ">
 					<Lefthand choice={player1Choice} />
 					<Righthand choice={player2Choice} />
 				</div>

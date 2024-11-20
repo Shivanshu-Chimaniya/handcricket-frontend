@@ -14,3 +14,6 @@ body{
   background-position: center;
 }
 
+*{
+  scrollbar-width: none;
+}

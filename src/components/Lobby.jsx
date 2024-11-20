@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from "react";
 import {RefreshCw, Trophy, Info, Play, Users} from "lucide-react";
 import {useNavigate} from "react-router-dom";
+import BouncyBalls from "./BouncyBalls";
+import StadiumLights from "./StaduimLights";
 
 const generateRandomName = () => {
 	const prefixes = ["Cricket", "Batsman", "Bowler", "Captain", "AllRounder"];
@@ -102,11 +104,7 @@ export default function Lobby({socket, getRoomCode, changeRoomCode}) {
 
 	// prev
 	useEffect(() => {
-		if (socket == null) {
-			navigate("/");
-			return;
-		}
-		// if (socket == null || !socket.connected) return;
+		if (socket == null) return;
 		socket.on("gameCreated", ({game}) => {
 			changeRoomCode(game.roomCode);
 			navigate(`/game/${game.roomCode}`);
@@ -117,8 +115,13 @@ export default function Lobby({socket, getRoomCode, changeRoomCode}) {
 		});
 	}, [socket]);
 
+	function wait(ms) {
+		return new Promise((resolve) => setTimeout(resolve, ms));
+	}
+
 	const handleCreateGame = async () => {
 		if (!playerName) return alert("Enter your name");
+
 		if (socket == null || !socket.connected)
 			return alert("Server is down! Connection Issue");
 		socket.emit("createGame", {playerName});
@@ -127,56 +130,35 @@ export default function Lobby({socket, getRoomCode, changeRoomCode}) {
 	var handleJoinGame = async () => {
 		if (!playerName) return alert("Enter your name");
 		if (!roomCode) return alert("Enter a room code");
-		changeRoomCode(roomCode);
+		let roomCode2 = roomCode.toUpperCase();
+		setRoomCode(roomCode2);
+		changeRoomCode(roomCode2);
 		if (socket == null || !socket.connected)
 			return alert("Server is down! Connection Issue");
-		if (socket == null || !socket.connected) return;
 
 		socket.emit("joinGame", {
-			roomCode,
+			roomCode: roomCode2,
 			playerName,
 		});
 	};
 
-	const JoinGameModal = ({isOpen, onClose}) => (
-		<Modal isOpen={isOpen} onClose={onClose} title="Join Game">
-			<div className="space-y-4">
-				<input
-					type="text"
-					value={roomCode}
-					onChange={(e) => setRoomCode(e.target.value)}
-					placeholder="Enter game code"
-					className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none"
-				/>
-				<button
-					onClick={() => handleJoinGame()}
-					className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors">
-					Join Game
-				</button>
-			</div>
-		</Modal>
-	);
-
 	return (
 		<div className="relative">
 			{/* Background Animation */}
-			<div className="absolute inset-0 overflow-hidden">
-				<div className="absolute w-20 h-20 bg-blue-200 rounded-full opacity-20 animate-bounce top-20 left-1/4" />
-				<div className="absolute w-16 h-16 bg-green-200 rounded-full opacity-20 animate-bounce delay-1000 top-40 right-1/3" />
-			</div>
+			<BouncyBalls />
+			<StadiumLights />
 
-			<div className="container mx-auto px-4 py-12 relative">
+			<div className="container mx-auto px-4 pt-40 relative">
 				{/* Hero Section */}
 				<div className="text-center mb-12">
 					<h1 className="text-6xl font-bold mb-4 text-gray-800 animate-fade-in">
-						HandCricket Showdown
+						HandCricket
 					</h1>
 					<p className="text-xl text-gray-600 mb-8">
-						Challenge players worldwide in this classic game of
-						strategy and luck!
+						Setup up a call, Start Playing.
 					</p>
 				</div>
-
+				<br />
 				{/* Player Name Section */}
 				<div className="max-w-md mx-auto mb-8">
 					<div className="relative">
@@ -203,13 +185,25 @@ export default function Lobby({socket, getRoomCode, changeRoomCode}) {
 						<Play size={20} />
 						<span>Create Game</span>
 					</button>
+					<br />
+					<hr />
+					<br />
+					<div className="flex gap-4">
+						<input
+							type="text"
+							value={roomCode}
+							onChange={(e) => setRoomCode(e.target.value)}
+							placeholder="Enter game code"
+							className=" grow p-2 border rounded focus:ring-2 focus:ring-green-500 outline-none"
+						/>
 
-					<button
-						onClick={() => setShowJoinGame(true)}
-						className="w-full bg-green-500 text-white py-3 rounded-lg shadow hover:bg-green-600 transition-colors flex items-center justify-center space-x-2">
-						<Users size={20} />
-						<span>Join Game</span>
-					</button>
+						<button
+							onClick={() => handleJoinGame()}
+							className="px-4 bg-green-500 text-white py-3 rounded-lg shadow hover:bg-green-600 transition-colors flex items-center justify-center space-x-2">
+							<Users size={20} />
+							<span>Join Game</span>
+						</button>
+					</div>
 				</div>
 
 				{/* Secondary Buttons */}
@@ -237,10 +231,6 @@ export default function Lobby({socket, getRoomCode, changeRoomCode}) {
 				<HowToPlayModal
 					isOpen={showHowToPlay}
 					onClose={() => setShowHowToPlay(false)}
-				/>
-				<JoinGameModal
-					isOpen={showJoinGame}
-					onClose={() => setShowJoinGame(false)}
 				/>
 			</div>
 		</div>
