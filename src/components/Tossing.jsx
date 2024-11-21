@@ -4,27 +4,25 @@ import {useNavigate} from "react-router-dom";
 import Lefthand from "./Lefthand";
 import Righthand from "./Righthand";
 
-const TossingStage = ({getRoomCode, socket}) => {
-	const [players, setPlayers] = useState([
-		{socketId: 1, name: "Player 1"},
-		{socketId: 2, name: "Player 2"},
-	]);
-	const [isPlayer1, setIsPlayer1] = useState(true);
+const TossingStage = ({getRoomCode, socket, gameCopy}) => {
+	const [isLeader, setIsLeader] = useState(true);
+	const [game, setGame] = useState(gameCopy);
 
 	const [player1Choice, setPlayer1Choice] = useState(-1);
 	const [player2Choice, setPlayer2Choice] = useState(-1);
 	const [selectedChoice, setSelectedChoice] = useState(null);
-
+	// rock paper scissors
 	const [showResult, setShowResult] = useState(false);
-	const [winner, setWinner] = useState(-1);
-	const [displayChoice, setDisplayChoice] = useState(false);
+	const [tossWinner, setTossWinner] = useState("");
 	const [winnerFound, setWinnerFound] = useState(false);
+
+	// batting or bowling
+	const [displayChoice, setDisplayChoice] = useState(false);
 	const [timer, setTimer] = useState(10);
 	const [wantsBatting, setWantsBatting] = useState(null);
 
 	const navigate = useNavigate();
 
-	let URL = import.meta.env.VITE_BACKENDURL;
 	const choices = ["rock", "paper", "scissors"];
 
 	function wait(ms) {
@@ -32,47 +30,27 @@ const TossingStage = ({getRoomCode, socket}) => {
 	}
 
 	useEffect(() => {
-		if (getRoomCode() == "") {
-			navigate("/");
-			return;
-		}
-		if (socket == null) {
-			navigate("/");
-			return;
-		}
-		let fetchGame = async () => {
-			const res = await fetch(URL + "/api/game/" + getRoomCode(), {
-				headers: {
-					"Content-Type": "application/json",
-				},
-			});
-			let game = await res.json();
-			setPlayers(game.players);
-			setIsPlayer1(game.leader === socket.id);
-		};
-		fetchGame();
+		console.log("new Choices have been made");
+	}, [player1Choice, player2Choice]);
 
-		socket.on("game_aborted", () => {
-			alert("player disconnected!!");
-			return;
-		});
+	console.log("tossing ");
+	useEffect(() => {
+		setIsLeader(gameCopy.leader.socketId == socket.id);
 
-		socket.on("resetToss", () => {
-			if (selectedChoice == null) {
-				setPlayer1Choice(-1);
-				setPlayer2Choice(-1);
-			}
-		});
-
-		socket.on("tossWinner", async ({winner, p1choice, p2choice}) => {
+		socket.on("TossWinner", async ({winner, p1choice, p2choice}) => {
 			setShowResult(true);
 			setWinnerFound(true);
-			setWinner(winner.name);
+			setTossWinner(winner.playerName);
 			if (socket.id === winner.socketId) {
 				setDisplayChoice(true);
 			}
-			setPlayer1Choice(getFingers(p1choice));
-			setPlayer2Choice(getFingers(p2choice));
+
+			setPlayer1Choice((prevChoice) =>
+				getFingers({prevChoice, newChoice: p1choice})
+			);
+			setPlayer2Choice((prevChoice) =>
+				getFingers({prevChoice, newChoice: p2choice})
+			);
 
 			let fn = async () => {
 				setTimer(10);
@@ -105,27 +83,33 @@ const TossingStage = ({getRoomCode, socket}) => {
 			fn();
 		});
 
-		socket.on("tossDraw", async ({winner, p1choice, p2choice}) => {
+		socket.on("TossDraw", async ({winner, p1choice, p2choice}) => {
 			setShowResult(true);
-			setPlayer1Choice(getFingers(p1choice));
-			setPlayer2Choice(getFingers(p2choice));
+			setPlayer1Choice((prevChoice) =>
+				getFingers({prevChoice, newChoice: p1choice})
+			);
+			setPlayer2Choice((prevChoice) =>
+				getFingers({prevChoice, newChoice: p2choice})
+			);
+
 			setTimeout(() => {
 				setSelectedChoice(null);
-			}, 1000);
+			}, 500);
 		});
 	}, []);
 
-	const getFingers = (choice) => {
-		switch (choice) {
-			case "rock":
-				return 0;
-			case "paper":
-				return 5;
-			case "scissors":
-				return 2;
-			default:
-				return 6;
+	const getFingers = ({prevChoice, newChoice}) => {
+		let thisChoice = 6;
+
+		if (newChoice === "rock") thisChoice = 0;
+		if (newChoice === "paper") thisChoice = 5;
+		if (newChoice === "scissors") thisChoice = 2;
+
+		if (thisChoice == prevChoice) {
+			thisChoice += 7;
 		}
+
+		return thisChoice;
 	};
 
 	const getHandEmoji = (choice) => {
@@ -142,13 +126,9 @@ const TossingStage = ({getRoomCode, socket}) => {
 	};
 
 	const handleTossSelection = (newChoice) => {
-		if (socket == null) {
-			navigate("/");
-			return;
-		}
 		if (selectedChoice === null) {
 			setSelectedChoice(newChoice);
-			socket.emit("playerTossMove", {
+			socket.emit("player-toss-move", {
 				roomCode: getRoomCode(),
 				choice: newChoice,
 			});
@@ -173,9 +153,11 @@ const TossingStage = ({getRoomCode, socket}) => {
 				className="relative z-10  flex justify-between items-center pt-20 sm:pt-4">
 				<div
 					className={`py-4 pe-6 ps-0 rounded-r-md ${
-						isPlayer1 ? "bg-blue-500" : "bg-rose-600"
+						isLeader ? "bg-blue-500" : "bg-rose-600"
 					} backdrop-blur-sm text-white font-bold`}>
-					<span className="ps-4">{players[0].name}</span>
+					<span className="ps-4">
+						{gameCopy.players[0].playerName}
+					</span>
 				</div>
 				<div>
 					<p className="ps-4 pe-2 py-1 text-xl font-extrabold">
@@ -185,9 +167,11 @@ const TossingStage = ({getRoomCode, socket}) => {
 
 				<div
 					className={`py-4 ps-6 pe-0 rounded-l-md ${
-						isPlayer1 ? "bg-rose-600" : "bg-blue-500"
+						isLeader ? "bg-rose-600" : "bg-blue-500"
 					} backdrop-blur-sm text-white font-bold`}>
-					<span className="pe-4">{players[1].name}</span>
+					<span className="pe-4">
+						{gameCopy.players[1].playerName}
+					</span>
 				</div>
 			</div>
 
@@ -242,7 +226,7 @@ const TossingStage = ({getRoomCode, socket}) => {
 									<div className="flex items-center justify-center space-x-3">
 										<Trophy className="text-yellow-400 font-extrabold w-8 h-8 mb-6" />
 										<h2 className="text-gray-800 font-bold text-2xl mb-6">
-											{winner} Wins the Toss!
+											{tossWinner} Wins the Toss!
 										</h2>
 									</div>
 

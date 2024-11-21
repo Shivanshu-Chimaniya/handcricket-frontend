@@ -1,0 +1,14 @@
+.PlayerResult .cell{
+    padding: 0.1rem 0.3rem;
+    width: 2rem;
+    aspect-ratio: 1/1;
+    text-align: center;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    color: blue;
+    margin-bottom: 0.25rem;
+}
+/* text-blue-800 px-2 py-1 rounded text-sm */
+.PlayerResult .cell .icon{
+    width: 100%;
+}

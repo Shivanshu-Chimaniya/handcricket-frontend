@@ -90,12 +90,11 @@ const HowToPlayModal = ({isOpen, onClose}) => (
 	</Modal>
 );
 
-export default function Lobby({socket, getRoomCode, changeRoomCode}) {
+export default function Lobby({socket, game, changeRoomCode, changeGame}) {
 	const [playerName, setPlayerName] = useState("");
+	const [roomCode, setRoomCode] = useState("");
 	const [showLeaderboard, setShowLeaderboard] = useState(false);
 	const [showHowToPlay, setShowHowToPlay] = useState(false);
-	const [showJoinGame, setShowJoinGame] = useState(false);
-	const [roomCode, setRoomCode] = useState(getRoomCode);
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -104,27 +103,26 @@ export default function Lobby({socket, getRoomCode, changeRoomCode}) {
 
 	// prev
 	useEffect(() => {
-		if (socket == null) return;
-		socket.on("gameCreated", ({game}) => {
-			changeRoomCode(game.roomCode);
+		if (socket == null) {
+			return;
+		}
+		socket.on("GameCreated", ({game}) => {
+			changeGame(game);
 			navigate(`/game/${game.roomCode}`);
 		});
-		socket.on("playerJoined", ({game}) => {
-			changeRoomCode(game.roomCode);
+		socket.on("PlayerJoined", ({game}) => {
+			changeGame(game);
 			navigate(`/game/${game.roomCode}`);
 		});
 	}, [socket]);
-
-	function wait(ms) {
-		return new Promise((resolve) => setTimeout(resolve, ms));
-	}
 
 	const handleCreateGame = async () => {
 		if (!playerName) return alert("Enter your name");
 
 		if (socket == null || !socket.connected)
 			return alert("Server is down! Connection Issue");
-		socket.emit("createGame", {playerName});
+
+		socket.emit("create-new-game", {playerName});
 	};
 
 	var handleJoinGame = async () => {
@@ -136,7 +134,7 @@ export default function Lobby({socket, getRoomCode, changeRoomCode}) {
 		if (socket == null || !socket.connected)
 			return alert("Server is down! Connection Issue");
 
-		socket.emit("joinGame", {
+		socket.emit("join-game", {
 			roomCode: roomCode2,
 			playerName,
 		});
@@ -145,8 +143,6 @@ export default function Lobby({socket, getRoomCode, changeRoomCode}) {
 	return (
 		<div className="relative">
 			{/* Background Animation */}
-			<BouncyBalls />
-			<StadiumLights />
 
 			<div className="container mx-auto px-4 pt-40 relative">
 				{/* Hero Section */}

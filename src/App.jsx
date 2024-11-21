@@ -2,13 +2,15 @@
 import React, {useEffect, useState} from "react";
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import Lobby from "./components/Lobby";
-import Game from "./components/GameRoom";
+import GameRoom from "./components/GameRoom";
 import "./App.css";
 import {io} from "socket.io-client";
+import BouncyBalls from "./components/BouncyBalls";
+import StadiumLights from "./components/StaduimLights";
 
 function App() {
 	let [socket, setSocket] = useState(null);
-	const [roomCode, setRoomCode] = useState("");
+	let [gameCopy, setGameCopy] = useState({});
 	let URL = import.meta.env.VITE_BACKENDURL;
 
 	useEffect(() => {
@@ -24,35 +26,53 @@ function App() {
 			}
 		};
 		connect();
+		return () => {
+			if (socket == null) return;
+			socket.disconnect();
+		};
 	}, []);
 
+	// NoGameFound, GameIsFull
+
 	const getRoomCode = () => {
-		return roomCode;
+		return gameCopy.roomCode;
 	};
+
 	const changeRoomCode = (newCode) => {
-		setRoomCode(newCode);
+		setGameCopy((prev) => {
+			return {...prev, roomCode: newCode};
+		});
+	};
+
+	const changeGame = (game) => {
+		setGameCopy(game);
 	};
 
 	return (
 		<>
 			<Router>
 				<div className="App">
+					<BouncyBalls />
+					<StadiumLights />
 					<Routes>
 						<Route
 							path="/"
 							element={
 								<Lobby
 									socket={socket}
+									game={gameCopy}
 									getRoomCode={getRoomCode}
 									changeRoomCode={changeRoomCode}
+									changeGame={changeGame}
 								/>
 							}
 						/>
 						<Route
 							path="/game/:roomCode"
 							element={
-								<Game
+								<GameRoom
 									socket={socket}
+									game={gameCopy}
 									getRoomCode={getRoomCode}
 									changeRoomCode={changeRoomCode}
 								/>

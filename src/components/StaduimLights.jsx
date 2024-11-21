@@ -1,26 +1,26 @@
 import React, {useEffect, useState} from "react";
 
-export default function StadiumLights({count = 10}) {
+export default function StadiumLights({count = 15}) {
 	const [lights, setLights] = useState([]);
 	const colors = [
-		"white",
-		"red-200",
-		"orange-200",
-		"amber-200",
-		"yellow-200",
-		"lime-200",
-		"green-2000",
-		"emerald-200",
-		"teal-200",
-		"cyan-200",
-		"sky-200",
-		"blue-200",
-		"Indigo-200",
-		"violet-200",
-		"purple-200",
-		"fuchsia-200",
-		"pink-200",
-		"rose-200",
+		"bg-white",
+		"bg-red-200",
+		"bg-orange-200",
+		"bg-amber-200",
+		"bg-yellow-200",
+		"bg-lime-200",
+		"bg-green-2000",
+		"bg-emerald-200",
+		"bg-teal-200",
+		"bg-cyan-200",
+		"bg-sky-200",
+		"bg-blue-200",
+		"bg-Indigo-200",
+		"bg-violet-200",
+		"bg-purple-200",
+		"bg-fuchsia-200",
+		"bg-pink-200",
+		"bg-rose-200",
 	];
 	useEffect(() => {
 		let arr = [];
@@ -42,7 +42,7 @@ export default function StadiumLights({count = 10}) {
 			{lights.map((object, i) => (
 				<div
 					key={i}
-					className={`absolute rounded-full w-2 h-2 bg-${object.color} opacity-10 animate-pulse`}
+					className={`absolute rounded-full w-2 h-2 ${object.color} opacity-15 animate-pulse`}
 					style={{
 						top: `${object.top}%`,
 						left: `${object.left}%`,

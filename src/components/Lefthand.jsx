@@ -11,8 +11,8 @@ import "./handcss.css";
 export default function Righthand({choice}) {
 	const map = [BIdle, B1, B2, B3, B4, B5, B6];
 	const [rotate, setRotate] = useState(0);
-	const [show, setShow] = useState(true);
-	const [Image, setImage] = useState(0);
+	const [show, setShow] = useState(false);
+	const [Image, setImage] = useState(BIdle);
 
 	useEffect(() => {
 		const performHandAnimation = async (Img) => {
@@ -29,11 +29,9 @@ export default function Righthand({choice}) {
 			setImage(Img);
 			setShow(true);
 		};
-		if (choice == -1) {
+		if (choice !== -1) {
 			setShow(false);
-		} else {
-			setShow(false);
-			performHandAnimation(map[choice]);
+			performHandAnimation(map[choice % 7]);
 		}
 	}, [choice]);
 	return (

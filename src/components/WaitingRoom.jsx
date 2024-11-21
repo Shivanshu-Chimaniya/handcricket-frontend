@@ -2,45 +2,24 @@ import React, {useEffect, useState} from "react";
 import {Crown, Copy, Loader2} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 
-const WaitingRoom = ({getRoomCode, socket}) => {
+const WaitingRoom = ({getRoomCode, socket, gameCopy}) => {
 	const [copied, setCopied] = useState(false);
-	const [players, setPlayers] = useState([
-		{socketId: 1, name: "Player 1"},
-		{socketId: 2, name: "Player 2"},
-	]);
 	const [canStart, setCanStart] = useState(false);
 	const [isLeader, setIsLeader] = useState(true);
+	const [game, setGame] = useState(gameCopy);
+
 	const roomCode = getRoomCode();
 	const navigate = useNavigate();
 
-	let URL = import.meta.env.VITE_BACKENDURL;
 	useEffect(() => {
-		if (getRoomCode() == "") {
-			navigate("/");
-			return;
+		setIsLeader(game.leader.socketId === socket.id);
+		if (game.players.length === 2) {
+			setCanStart(true);
 		}
-		if (socket == null) {
-			navigate("/");
-			return;
-		}
-		let fetchGame = async () => {
-			const res = await fetch(URL + "/api/game/" + getRoomCode(), {
-				headers: {
-					"Content-Type": "application/json",
-				},
-			});
-			let game = await res.json();
-			setPlayers(game.players);
-			setIsLeader(game.leader === socket.id);
-			if (game.players.length === 2) {
-				setCanStart(true);
-			}
-		};
-		fetchGame();
 
-		socket.on("playerJoined", async ({game}) => {
-			setPlayers(game.players);
-			setIsLeader(game.leader === socket.id);
+		socket.on("PlayerJoined", async ({game}) => {
+			setGame(game);
+			console.log(game);
 			if (game.players.length === 2) {
 				setCanStart(true);
 			}
@@ -64,7 +43,7 @@ const WaitingRoom = ({getRoomCode, socket}) => {
 		if (!getRoomCode()) {
 			navigate("/");
 		}
-		socket.emit("startGame", {roomCode: getRoomCode()});
+		socket.emit("start-game", {roomCode: getRoomCode()});
 	};
 
 	return (
@@ -105,15 +84,15 @@ const WaitingRoom = ({getRoomCode, socket}) => {
 						Players
 					</h2>
 					<div className="space-y-4">
-						{typeof players[0] !== "undefined" ? (
+						{game.players[0] !== undefined ? (
 							<div
-								key={players[0].id}
+								key={game.players[0].id}
 								className="flex items-center justify-between bg-black/5  hover:bg-black/20  p-4 rounded-lg transition-all transform ">
 								<div className="flex items-center space-x-3">
 									<Crown className="text-yellow-400 w-6 h-6" />
 
 									<span className="text-white font-medium">
-										{players[0].name}
+										{game.players[0].playerName}
 									</span>
 								</div>
 							</div>
@@ -130,13 +109,13 @@ const WaitingRoom = ({getRoomCode, socket}) => {
 								<Loader2 className="animate-spin text-gray-800 animate-fade-in" />
 							</div>
 						)}
-						{typeof players[1] !== "undefined" ? (
+						{game.players[1] !== undefined ? (
 							<div
-								key={players[1].id}
+								key={game.players[1].id}
 								className="flex items-center justify-between bg-black/5  hover:bg-black/20   p-4 rounded-lg hover:bg-gray/90 transition-all transform ">
 								<div className="flex items-center space-x-3">
 									<span className="text-white font-medium">
-										{players[1].name}
+										{game.players[1].playerName}
 									</span>
 								</div>
 							</div>

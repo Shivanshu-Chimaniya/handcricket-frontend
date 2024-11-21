@@ -6,56 +6,68 @@ import Tossing from "./Tossing";
 import WaitingRoom from "./WaitingRoom";
 import ResultsModal from "./ResultsModal";
 
-const Game = ({socket, getPlayerName, getRoomCode}) => {
+const GameRoom = ({socket, game, getRoomCode}) => {
+	const [gameCopy, setGameCopy] = useState(game);
 	const [gamePhase, setGamePhase] = useState("waiting"); // waiting, tossing, handCricket, results
 
 	const navigate = useNavigate();
 
-	let URL = import.meta.env.VITE_BACKENDURL;
-
+	if (getRoomCode() == undefined) {
+		navigate("/");
+		return;
+	}
+	if (socket == null) {
+		navigate("/");
+		return;
+	}
+	console.log("gameROom");
 	useEffect(() => {
-		if (socket == null) {
-			navigate("/");
-			return;
-		}
-		if (getRoomCode() == "") {
-			navigate("/");
-			return;
-		}
-		const fn = async () => {
-			const res = await fetch(URL + "/api/game/" + getRoomCode(), {
-				headers: {
-					"Content-Type": "application/json",
-				},
-			});
-			let game = await res.json();
-		};
-		// fn();
-
-		socket.on("startGame", () => {
+		socket.on("StartTossing", ({game}) => {
+			setGameCopy(game);
 			setGamePhase("tossing");
 		});
-		socket.on("startHandCricket", () => {
+		socket.on("startHandCricket", ({game}) => {
+			setGameCopy(game);
 			setGamePhase("handCricket");
 		});
 
-		return () => socket.disconnect();
+		socket.on("GameAborted", () => {
+			alert("you won, he left!!");
+			navigate("/");
+			return;
+		});
 	}, []);
+
+	const changeGameCopy = (newGame) => {
+		setGameCopy(newGame);
+	};
 
 	return (
 		<>
 			{gamePhase === "waiting" && (
-				<WaitingRoom getRoomCode={getRoomCode} socket={socket} />
+				<WaitingRoom
+					getRoomCode={getRoomCode}
+					gameCopy={gameCopy}
+					socket={socket}
+				/>
 			)}
 			{gamePhase === "tossing" && (
-				<Tossing getRoomCode={getRoomCode} socket={socket} />
+				<Tossing
+					getRoomCode={getRoomCode}
+					socket={socket}
+					gameCopy={gameCopy}
+				/>
 			)}
 
 			{gamePhase == "handCricket" && (
-				<HandCricket getRoomCode={getRoomCode} socket={socket} />
+				<HandCricket
+					getRoomCode={getRoomCode}
+					socket={socket}
+					gameCopy={gameCopy}
+				/>
 			)}
 		</>
 	);
 };
 
-export default Game;
+export default GameRoom;
