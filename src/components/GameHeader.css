@@ -1,0 +1,19 @@
+.GameHeader{
+    width: 100% !important;
+}
+
+.GameHeader .aboveGamePhase{
+    width: 100%;
+}
+
+.GameHeader .aboveGamePhase{
+    display: none;
+}
+@media (max-width: 600px) {
+    .GameHeader .inbetweenGamePhase{
+        display: none;
+    }
+    .GameHeader .aboveGamePhase{
+        display: block;
+    }
+  }

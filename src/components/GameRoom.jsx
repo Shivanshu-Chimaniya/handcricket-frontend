@@ -8,7 +8,7 @@ import ResultsModal from "./ResultsModal";
 
 const GameRoom = ({socket, game, getRoomCode}) => {
 	const [gameCopy, setGameCopy] = useState(game);
-	const [gamePhase, setGamePhase] = useState("waiting"); // waiting, tossing, handCricket, results
+	const [gamePhase, setGamePhase] = useState("waiting"); // waiting, tossing, handCricket
 
 	const navigate = useNavigate();
 

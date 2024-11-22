@@ -1,0 +1,51 @@
+.ScoreBarPlayerDetails .central-badge{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background-color: red;
+}
+
+.ScoreBarPlayerDetails .central-badge .background{
+    position: absolute;
+    width: 100px;
+    aspect-ratio: 1/1;
+    transform: translate(-50%, -50%) rotate(45deg);
+    border-radius: 1rem;
+}
+.ScoreBarPlayerDetails .central-badge .foreground{
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    color: white;
+    font-weight: 600;
+}
+.ScoreBarPlayerDetails .central-badge .foreground .supplimentText{
+    font-size: 0.75rem;
+}
+.ScoreBarPlayerDetails .central-badge .foreground .runs{
+    font-size: 1.25rem;
+}
+.playerDetail{
+    display: flex;
+}
+
+@media (max-width: 600px) {
+    .ScoreBarPlayerDetails .central-badge .background{
+        width: 80px;
+    }
+    .ScoreBarPlayerDetails .central-badge .foreground .supplimentText{
+        font-size: 0.6rem;
+    }
+    .ScoreBarPlayerDetails .central-badge .foreground .runs{
+        font-size: 1.1rem;
+    }
+
+    .playerDetail{
+        display: none;
+    }
+    .show{
+        display: flex;
+    }
+  }

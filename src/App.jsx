@@ -7,8 +7,10 @@ import "./App.css";
 import {io} from "socket.io-client";
 import BouncyBalls from "./components/BouncyBalls";
 import StadiumLights from "./components/StaduimLights";
+import generateRandomName from "./js/generateRandomName";
 
 function App() {
+	let [playerName, setPlayerName] = useState(generateRandomName);
 	let [socket, setSocket] = useState(null);
 	let [gameCopy, setGameCopy] = useState({});
 	let URL = import.meta.env.VITE_BACKENDURL;
@@ -38,6 +40,9 @@ function App() {
 		return gameCopy.roomCode;
 	};
 
+	const changePlayerName = (newName) => {
+		setPlayerName(newName);
+	};
 	const changeRoomCode = (newCode) => {
 		setGameCopy((prev) => {
 			return {...prev, roomCode: newCode};
@@ -52,8 +57,6 @@ function App() {
 		<>
 			<Router>
 				<div className="App">
-					<BouncyBalls />
-					<StadiumLights />
 					<Routes>
 						<Route
 							path="/"
@@ -64,6 +67,8 @@ function App() {
 									getRoomCode={getRoomCode}
 									changeRoomCode={changeRoomCode}
 									changeGame={changeGame}
+									playerName={playerName}
+									changePlayerName={changePlayerName}
 								/>
 							}
 						/>

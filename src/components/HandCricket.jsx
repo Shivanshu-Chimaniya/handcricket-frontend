@@ -1,12 +1,14 @@
 import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import ball from "../assets/ball.png";
 import bat from "../assets/bat.png";
 import "./HandCricket.css";
 import Lefthand from "./Lefthand";
 import Righthand from "./Righthand";
 import HalfTimeModal from "./HalfTimeModal";
 import ResultsModal from "./ResultsModal";
+import GameHeader from "./GameHeader";
+import ScoreBarPlayerDetails from "./ScoreBarPlayerDetails";
+import StartingModal from "./StartingModal";
 
 const HandCricket = ({getRoomCode, socket, gameCopy}) => {
 	const [game, setGame] = useState(gameCopy);
@@ -22,6 +24,7 @@ const HandCricket = ({getRoomCode, socket, gameCopy}) => {
 
 	const [blockUpdates, setBlockUpdates] = useState(false);
 	const [switchingInnings, setSwitchingInnings] = useState(false);
+	const [startingGame, setStartingGame] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -37,17 +40,16 @@ const HandCricket = ({getRoomCode, socket, gameCopy}) => {
 		socket.on("out", async ({game, move1, move2}) => {
 			updateGame(game, move1, move2);
 			setBlockUpdates(true);
-			await wait(400);
+			await wait(900);
 			setSwitchingInnings(true);
+			setPlayer1Choice(-1);
+			setPlayer2Choice(-1);
+			setSelectedChoice(-1);
 		});
 
 		socket.on("start-second-inning", async ({game}) => {
 			setBlockUpdates(false);
 			setSwitchingInnings(false);
-			console.log("halfinr req");
-			setPlayer1Choice(-1);
-			setPlayer2Choice(-1);
-			setSelectedChoice(-1);
 			setGame(game);
 			setLast10Balls([]);
 		});
@@ -57,19 +59,16 @@ const HandCricket = ({getRoomCode, socket, gameCopy}) => {
 
 			setBlockUpdates(true);
 			updateGame(game, move1, move2);
-			setPlayer1Choice(-1);
-			setPlayer2Choice(-1);
 			setSelectedChoice(-1);
 			setGame(game);
-			await wait(400);
+			await wait(900);
 			setGameConcluded(true);
 		});
 
 		socket.on("updateGame", async ({game, move1, move2}) => {
-			if (gameConcluded || blockUpdates) return;
-
-			await updateGame(game, move1, move2);
+			updateGame(game, move1, move2);
 		});
+		setStartingGame(true);
 	}, []);
 
 	const updateGame = async (game, move1, move2) => {
@@ -101,6 +100,10 @@ const HandCricket = ({getRoomCode, socket, gameCopy}) => {
 
 	const switchedInning = async () => {
 		socket.emit("has-seen-results", {roomCode: getRoomCode()});
+	};
+
+	const startFirstInning = async () => {
+		setStartingGame(false);
 	};
 
 	const getHandEmoji = (choice) => {
@@ -153,59 +156,25 @@ const HandCricket = ({getRoomCode, socket, gameCopy}) => {
 	};
 
 	return (
-		<div className="relative grow my-6">
-			<div
-				style={{maxWidth: "100vw"}}
-				className="relative z-10 flex justify-between items-center  pt-20 sm:pt-4">
-				<div
-					className={`py-4 pe-6 ps-0 rounded-r-md ${
-						isLeader ? "bg-blue-500" : "bg-rose-600"
-					} backdrop-blur-sm text-white font-bold`}>
-					<span className="ps-4 pe-2">
-						{game.players[0].playerName}
-					</span>
-					<img
-						className="BattingBallingSymbol"
-						src={game.battingTurn == 0 ? bat : ball}
-						alt={game.battingTurn == 0 ? "Batting" : "Balling"}
-					/>
-				</div>
-				{!game.isFirstInnings ? (
-					<div>
-						<p className="ps-4 pe-2 py-1 text-xl font-extrabold">
-							Inning&nbsp;2 Target&nbsp;{game.targetScore}
-						</p>
-					</div>
-				) : (
-					<div>
-						<p className="ps-4 pe-2 py-1 text-xl font-extrabold">
-							Inning 1
-						</p>
-					</div>
-				)}
-				<div
-					className={`py-4 ps-6 pe-0 rounded-l-md ${
-						isLeader ? "bg-rose-600" : "bg-blue-500"
-					} backdrop-blur-sm text-white font-bold`}>
-					<img
-						className="BattingBallingSymbol"
-						src={game.battingTurn == 1 ? bat : ball}
-						alt={game.battingTurn == 1 ? "Batting" : "Balling"}
-					/>
-					<span className="ps-2 pe-4">
-						{game.players[1].playerName}
-					</span>
-				</div>
-			</div>
+		<div className="w-full">
+			<GameHeader
+				gamePhase={"HandCricket"}
+				player1={gameCopy.players[0].playerName}
+				player2={gameCopy.players[1].playerName}
+				isLeader={isLeader}
+				isFirstInnings={game.isFirstInnings}
+				targetScore={game.targetScore}
+				battingTurn={game.battingTurn}
+			/>
 
-			<div className="relative z-10 max-w-4xl mx-auto pt-8 ">
-				<div className="flex justify-center items-center space-x-4 sm:space-x-40 mb-6 h-80">
+			<div className="relative z-10 max-w-4xl mx-auto pt-32 sm:pt-32 ">
+				<div className="flex justify-evenly items-center space-x-16 pb-20 sm:pb-12  sm:h-72 h-96">
 					<Lefthand choice={player1Choice} />
 					<Righthand choice={player2Choice} />
 				</div>
 
 				<div className="text-center mb-12">
-					<div className="flex flex-wrap justify-center space-x-4">
+					<div className="flex justify-center space-x-4">
 						{choices.map((choice) => (
 							<button
 								key={choice}
@@ -213,7 +182,7 @@ const HandCricket = ({getRoomCode, socket, gameCopy}) => {
 									handleNumberSelection(choice);
 								}}
 								disabled={selectedChoice !== -1}
-								className={`px-4 py-2 z-10 text-3xl rounded-md bg-black/30 backdrop-blur-sm text-white font-bold transition-all transform
+								className={`px-3 py-1 sm:px-4 sm:py-2 z-10 text-xl sm:text-3xl rounded-md bg-black/30 backdrop-blur-sm text-white font-bold transition-all transform
                     ${
 						selectedChoice === choice
 							? "bg-green-500 scale-110"
@@ -232,98 +201,32 @@ const HandCricket = ({getRoomCode, socket, gameCopy}) => {
 				</div>
 			</div>
 
-			<div className="relative z-10 w-full flex justify-between items-center bg-white/40 backdrop-blur-sm border-y-8 border-white/20 h-20">
-				<div className="ps-2 grow text-gray-800 font-bold flex">
-					<p>
-						{game.battingTurn == 0 && (
-							<img
-								className="BattingBallingSymbol2"
-								src={bat}
-								alt="*"
-							/>
-						)}
-						<br />
-						{game.battingTurn == 1 && (
-							<img
-								className="BattingBallingSymbol2"
-								src={bat}
-								alt="*"
-							/>
-						)}
-					</p>
-					<p className="px-2">
-						{game.players[0].playerName} <br />
-						{game.players[1].playerName}
-					</p>
-					<p className="px-2">
-						{game.scores[0]} <br /> {game.scores[1]}
-					</p>
-					<p className="px-2 font-semibold ">
-						{game.spans[0]} <br /> {game.spans[1]}
-					</p>
-				</div>
-				<div
-					className="grow-0"
-					style={{
-						position: "absolute",
-						top: "50%",
-						left: "50%",
-						background: "red",
-					}}>
-					<div
-						className="bg-red-600/100 backdrop-blur-sm border-4 border-white/20"
-						style={{
-							position: "absolute",
-							width: "100px",
-							aspectRatio: "1/1",
-							transform: "translate(-50%, -50%) rotate(45deg)",
-							borderRadius: "1rem",
-						}}></div>
-					<div
-						style={{
-							position: "absolute",
-							transform: "translate(-50%, -50%)",
-							top: "50%",
-							left: "50%",
-							textAlign: "center",
-							color: "white",
-							fontWeight: "600",
-						}}>
-						{game.isFirstInnings ? (
-							<>
-								<span style={{fontSize: "0.75rem"}}>
-									Runs&nbsp;Scored
-								</span>
-								<div style={{fontSize: "1.25rem"}}>
-									{game.scores[game.battingTurn]}
-								</div>
-							</>
-						) : (
-							<>
-								<span style={{fontSize: "0.75rem"}}>
-									Runs&nbsp;left
-								</span>
-								<div style={{fontSize: "1.25rem"}}>
-									{game.scores[game.battingTurn] <
-									game.targetScore
-										? game.targetScore -
-										  game.scores[game.battingTurn]
-										: 0}
-								</div>
-							</>
-						)}
-					</div>
-				</div>
-				<div className="py-1  pe-3 grow text-gray-800 font-bold flex flex-row-reverse">
-					{last10Balls.length > 0 &&
-						last10Balls.map((el, index) => (
-							<p key={index} className="ps-1 gap-1 flex flex-col">
-								<span className="Balls">{el.player1}</span>
-								<span className="Balls">{el.player2}</span>
-							</p>
-						))}
-				</div>
-			</div>
+			<ScoreBarPlayerDetails
+				player1={{
+					name: game.players[0].playerName,
+					score: game.scores[0],
+					ballsPlayed: game.spans[0],
+				}}
+				player2={{
+					name: game.players[1].playerName,
+					score: game.scores[1],
+					ballsPlayed: game.spans[1],
+				}}
+				battingPlayer={game.battingTurn}
+				currentInnings={game.isFirstInnings ? 0 : 1}
+				runs={game.scores[game.battingTurn]}
+				runsLeft={game.targetScore - game.scores[game.battingTurn]}
+				lastFiveBalls={last10Balls}
+			/>
+			{startingGame && (
+				<StartingModal
+					timer={5}
+					game={game}
+					isLeader={isLeader}
+					startFirstInning={startFirstInning}
+				/>
+			)}
+
 			{switchingInnings && (
 				<HalfTimeModal
 					timer={10}

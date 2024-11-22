@@ -10,7 +10,7 @@ const WaitingRoom = ({getRoomCode, socket, gameCopy}) => {
 
 	const roomCode = getRoomCode();
 	const navigate = useNavigate();
-
+	console.log("waiting room");
 	useEffect(() => {
 		setIsLeader(game.leader.socketId === socket.id);
 		if (game.players.length === 2) {
@@ -47,24 +47,15 @@ const WaitingRoom = ({getRoomCode, socket, gameCopy}) => {
 	};
 
 	return (
-		<div className="relative min-w-96">
-			{/* Stadium Background Elements */}
-			{/* <div className="absolute inset-0 overflow-hidden">
-				<div className="absolute w-20 h-20 bg-blue-200 rounded-full opacity-20 animate-bounce top-20 left-1/4" />
-				<div className="absolute w-16 h-16 bg-green-200 rounded-full opacity-20 animate-bounce delay-1000 top-40 right-1/3" />
-			</div> */}
-			{/* Main Content Container */}
-			<div className="relative z-10 max-w-4xl mx-auto pt-16 px-4">
-				{/* Start Game Button (Leader Only) */}
-
-				{/* Central Waiting Message */}
+		<div className="grow-1 pt-20 sm:pt-12 ">
+			<div className="relative z-10 max-w-4xl mx-auto">
 				<div className="text-center mb-12">
-					<h1 className="text-4xl font-bold text-gray-800 animate-fade-in mb-4">
+					<h1 className="text-3xl sm:text-4xl font-bold text-gray-800 animate-fade-in mb-4">
 						Waiting Room
 					</h1>
 					{!canStart && (
 						<div className="flex items-center justify-center space-x-3">
-							<span className="text-xl text-gray-800 animate-fade-in">
+							<span className="text-base sm:text-xl text-gray-800 animate-fade-in">
 								Waiting for player two to join
 							</span>
 						</div>
@@ -79,7 +70,7 @@ const WaitingRoom = ({getRoomCode, socket, gameCopy}) => {
 				</div>
 
 				{/* Players List */}
-				<div className="bg-black/50 backdrop-blur-sm rounded-xl p-6 mb-8">
+				<div className="bg-black/50 backdrop-blur-sm rounded-xl p-6 m-1 mb-8 max-w-96">
 					<h2 className="text-xl font-bold text-white animate-fade-in mb-4">
 						Players
 					</h2>
@@ -87,11 +78,11 @@ const WaitingRoom = ({getRoomCode, socket, gameCopy}) => {
 						{game.players[0] !== undefined ? (
 							<div
 								key={game.players[0].id}
-								className="flex items-center justify-between bg-black/5  hover:bg-black/20  p-4 rounded-lg transition-all transform ">
-								<div className="flex items-center space-x-3">
+								className="flex items-center overflow-scroll justify-between bg-black/5  hover:bg-black/20  p-4 rounded-lg transition-all transform ">
+								<div className="flex items-center space-x-3 ">
 									<Crown className="text-yellow-400 w-6 h-6" />
 
-									<span className="text-white font-medium">
+									<span className="text-white font-medium ">
 										{game.players[0].playerName}
 									</span>
 								</div>
@@ -112,7 +103,7 @@ const WaitingRoom = ({getRoomCode, socket, gameCopy}) => {
 						{game.players[1] !== undefined ? (
 							<div
 								key={game.players[1].id}
-								className="flex items-center justify-between bg-black/5  hover:bg-black/20   p-4 rounded-lg hover:bg-gray/90 transition-all transform ">
+								className="flex items-center justify-between bg-black/5 overflow-scroll hover:bg-black/20 p-4 rounded-lg hover:bg-gray/90 transition-all transform ">
 								<div className="flex items-center space-x-3">
 									<span className="text-white font-medium">
 										{game.players[1].playerName}

@@ -3,6 +3,8 @@ import {Trophy} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import Lefthand from "./Lefthand";
 import Righthand from "./Righthand";
+import GameHeader from "./GameHeader";
+import "./Tossing.css";
 
 const TossingStage = ({getRoomCode, socket, gameCopy}) => {
 	const [isLeader, setIsLeader] = useState(true);
@@ -147,43 +149,26 @@ const TossingStage = ({getRoomCode, socket, gameCopy}) => {
 	};
 
 	return (
-		<div className="relative grow my-6">
-			<div
-				style={{maxWidth: "100vw"}}
-				className="relative z-10  flex justify-between items-center pt-20 sm:pt-4">
-				<div
-					className={`py-4 pe-6 ps-0 rounded-r-md ${
-						isLeader ? "bg-blue-500" : "bg-rose-600"
-					} backdrop-blur-sm text-white font-bold`}>
-					<span className="ps-4">
-						{gameCopy.players[0].playerName}
-					</span>
-				</div>
-				<div>
-					<p className="ps-4 pe-2 py-1 text-xl font-extrabold">
-						Tossing
-					</p>
-				</div>
+		<div className="w-full">
+			<GameHeader
+				gamePhase={"Tossing"}
+				player1={gameCopy.players[0].playerName}
+				player2={gameCopy.players[1].playerName}
+				isLeader={isLeader}
+				isFirstInnings={-1}
+				targetScore={-1}
+				battingTurn={-1}
+			/>
 
-				<div
-					className={`py-4 ps-6 pe-0 rounded-l-md ${
-						isLeader ? "bg-rose-600" : "bg-blue-500"
-					} backdrop-blur-sm text-white font-bold`}>
-					<span className="pe-4">
-						{gameCopy.players[1].playerName}
-					</span>
-				</div>
-			</div>
-
-			<div className="relative z-10 max-w-4xl mx-auto pt-8  pt-20 sm:pt-12">
-				<div className="flex justify-center items-center space-x-16 mb-12 h-80 ">
+			<div className="relative z-10 max-w-4xl mx-auto pt-32 sm:pt-32">
+				<div className="flex justify-center items-center space-x-16 pb-20 sm:pb-12  sm:h-72 h-96">
 					<Lefthand choice={player1Choice} />
 					<Righthand choice={player2Choice} />
 				</div>
 
 				{!showResult || (showResult && !winnerFound) ? (
 					<div className="text-center">
-						<h2 className="text-gray-800 font-extrabold text-2xl mb-6">
+						<h2 className="text-gray-800 font-extrabold text-xl mb-6">
 							{showResult
 								? "It's a Tie! Make Your Choice!"
 								: "Make Your Choice!"}
@@ -222,10 +207,10 @@ const TossingStage = ({getRoomCode, socket, gameCopy}) => {
 									: "translate-y-8 opacity-0"
 							}`}>
 							{winnerFound && (
-								<div className="space-y-6">
+								<div className="py-12 bg-black/30 backdrop-blur-sm rounded-lg">
 									<div className="flex items-center justify-center space-x-3">
-										<Trophy className="text-yellow-400 font-extrabold w-8 h-8 mb-6" />
-										<h2 className="text-gray-800 font-bold text-2xl mb-6">
+										<Trophy className="text-yellow-400 font-extrabold w-8 h-8 " />
+										<h2 className="text-white font-bold text-xl sm:text-2xl">
 											{tossWinner} Wins the Toss!
 										</h2>
 									</div>
@@ -233,7 +218,7 @@ const TossingStage = ({getRoomCode, socket, gameCopy}) => {
 									<div className="space-y-4">
 										{displayChoice ? (
 											<>
-												<h3 className="text-gray-800 font-bold text-2xl mb-6">
+												<h3 className="text-white font-bold pt-1 text-sm sm:text-xl mb-3">
 													Choose Your Side, default
 													balling ({timer}s)
 												</h3>
@@ -265,7 +250,7 @@ const TossingStage = ({getRoomCode, socket, gameCopy}) => {
 											</>
 										) : (
 											<>
-												<h3 className="text-gray-800 font-bold text-2xl mb-6">
+												<h3 className="text-white font-bold text-2xl my-6">
 													They are choosing ({timer}s
 													left)
 												</h3>
