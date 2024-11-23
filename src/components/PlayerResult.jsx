@@ -10,7 +10,6 @@ const PlayerResult = ({
 	playerScore,
 	playerSpan,
 }) => {
-	console.log(Inning, battingTurn, playerName, playerScore, playerSpan);
 	return (
 		<div className="PlayerResult mb-4">
 			<div className="flex justify-between items-center mb-2">

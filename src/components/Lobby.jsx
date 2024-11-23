@@ -51,8 +51,6 @@ export default function Lobby({
 		changeRoomCode(roomCode2);
 		if (socket == null || !socket.connected)
 			return alert("Server is down! Connection Issue");
-
-		console.log("sending req");
 		socket.emit("join-game", {
 			roomCode: roomCode2,
 			playerName: localPlayerName,

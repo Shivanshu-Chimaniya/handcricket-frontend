@@ -20,7 +20,6 @@ const GameRoom = ({socket, game, getRoomCode}) => {
 		navigate("/");
 		return;
 	}
-	console.log("gameROom");
 	useEffect(() => {
 		socket.on("StartTossing", ({game}) => {
 			setGameCopy(game);

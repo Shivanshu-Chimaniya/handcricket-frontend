@@ -32,11 +32,6 @@ const TossingStage = ({getRoomCode, socket, gameCopy}) => {
 	}
 
 	useEffect(() => {
-		console.log("new Choices have been made");
-	}, [player1Choice, player2Choice]);
-
-	console.log("tossing ");
-	useEffect(() => {
 		setIsLeader(gameCopy.leader.socketId == socket.id);
 
 		socket.on("TossWinner", async ({winner, p1choice, p2choice}) => {

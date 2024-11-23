@@ -27,7 +27,6 @@ const StartingModal = ({game, isLeader, timer, startFirstInning}) => {
 	}, []);
 	if (!isOpen) return null;
 	let players = game.players;
-	console.log(game, players, isLeader, timer, startFirstInning);
 	let didIWinToss =
 		(isLeader && game.tossWinner == 0) ||
 		(!isLeader && game.tossWinner == 1);

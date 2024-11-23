@@ -55,8 +55,6 @@ const HandCricket = ({getRoomCode, socket, gameCopy}) => {
 		});
 
 		socket.on("gameover", async ({game, move1, move2}) => {
-			console.log(game);
-
 			setBlockUpdates(true);
 			updateGame(game, move1, move2);
 			setSelectedChoice(-1);
