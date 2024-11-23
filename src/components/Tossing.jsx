@@ -49,6 +49,7 @@ const TossingStage = ({getRoomCode, socket, gameCopy}) => {
 				getFingers({prevChoice, newChoice: p2choice})
 			);
 
+			// who needs setInterval
 			let fn = async () => {
 				setTimer(10);
 				await wait(1000);

@@ -1,8 +1,5 @@
-import React, {useState, useEffect} from "react";
-import ball from "../assets/ball.png";
-import bat from "../assets/bat.png";
-import PlayerResult from "./PlayerResult";
 import {Clock} from "lucide-react";
+import React, {useEffect, useState} from "react";
 
 const StartingModal = ({game, isLeader, timer, startFirstInning}) => {
 	const [timeLeft, setTimeLeft] = useState(timer);

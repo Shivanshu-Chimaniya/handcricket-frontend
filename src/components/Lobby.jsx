@@ -127,7 +127,7 @@ export default function Lobby({
 				<div className="max-w-md mx-auto mt-8 flex justify-center space-x-4">
 					<button
 						onClick={() => setShowHowToPlay(true)}
-						className="flex items-center space-x-2 text-gray-600 hover:text-gray-800">
+						className="flex items-center space-x-2 text-gray-800 hover:font-semibold ">
 						<Info size={20} />
 						<span>How to Play</span>
 					</button>

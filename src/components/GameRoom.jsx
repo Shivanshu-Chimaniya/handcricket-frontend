@@ -31,6 +31,7 @@ const GameRoom = ({socket, game, getRoomCode}) => {
 		});
 
 		socket.on("GameAborted", () => {
+			console.log("oooh he left");
 			alert("you won, he left!!");
 			navigate("/");
 			return;
