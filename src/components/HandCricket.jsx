@@ -166,7 +166,7 @@ const HandCricket = ({getRoomCode, socket, gameCopy}) => {
 			/>
 
 			<div className="relative z-10 max-w-4xl mx-auto pt-32 sm:pt-32 ">
-				<div className="flex justify-evenly items-center space-x-16 pb-20 sm:pb-12  sm:h-72 h-96">
+				<div className="flex justify-evenly items-center space-x-16 pb-20 sm:pb-12  sm:h-64 h-96">
 					<Lefthand choice={player1Choice} />
 					<Righthand choice={player2Choice} />
 				</div>
