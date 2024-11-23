@@ -72,6 +72,9 @@ export default function Lobby({
 					<p className="text-xl max-[400px]:text-sm text-gray-600">
 						Setup up a call, Start Playing.
 					</p>
+					<p className="text-xs text-gray-600">
+						Backend is on render, it might take a minute to bootup.
+					</p>
 				</div>
 				<br />
 
