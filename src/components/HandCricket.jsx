@@ -146,7 +146,7 @@ const HandCricket = ({getRoomCode, socket, gameCopy}) => {
 	};
 
 	const handleRematchButtonClick = () => {
-		alert("abhi nahi");
+		socket.emit("re-join-game", {roomCode: getRoomCode()});
 	};
 
 	const handleHomeButtonClick = () => {

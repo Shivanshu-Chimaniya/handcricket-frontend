@@ -36,26 +36,20 @@ const PlayerResult = ({
 					}}
 					className="flex ">
 					{Inning.map((run, index) => (
-						<>
-							<div key={index} className="flex-col mx-1">
-								<div
-									key={0}
-									style={{backgroundColor: "#D9EAD3"}}
-									className="cell">
-									{battingTurn == 0
-										? run.player1
-										: run.player2}
-								</div>
-								<div
-									key={1}
-									style={{backgroundColor: "#D9d9d93"}}
-									className="cell">
-									{battingTurn == 0
-										? run.player2
-										: run.player1}
-								</div>
+						<div key={index} className="flex-col mx-1">
+							<div
+								key={0}
+								style={{backgroundColor: "#D9EAD3"}}
+								className="cell">
+								{battingTurn == 0 ? run.player1 : run.player2}
 							</div>
-						</>
+							<div
+								key={1}
+								style={{backgroundColor: "#D9d9d93"}}
+								className="cell">
+								{battingTurn == 0 ? run.player2 : run.player1}
+							</div>
+						</div>
 					))}
 				</div>
 			</div>

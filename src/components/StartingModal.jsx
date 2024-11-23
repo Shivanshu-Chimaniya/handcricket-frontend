@@ -11,7 +11,6 @@ const StartingModal = ({game, isLeader, timer, startFirstInning}) => {
 				if (prev <= 1) {
 					clearInterval(countdown);
 					setIsOpen(false);
-					startFirstInning();
 					return 0;
 				}
 				return prev - 1;
@@ -22,7 +21,10 @@ const StartingModal = ({game, isLeader, timer, startFirstInning}) => {
 			clearInterval(countdown);
 		};
 	}, []);
-	if (!isOpen) return null;
+	if (!isOpen) {
+		startFirstInning();
+		return null;
+	}
 	let players = game.players;
 	let didIWinToss =
 		(isLeader && game.tossWinner == 0) ||

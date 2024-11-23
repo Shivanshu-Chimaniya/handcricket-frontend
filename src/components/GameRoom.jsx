@@ -21,6 +21,10 @@ const GameRoom = ({socket, game, getRoomCode}) => {
 		return;
 	}
 	useEffect(() => {
+		socket.on("Rematch", ({game}) => {
+			setGameCopy(game);
+			setGamePhase("waiting");
+		});
 		socket.on("StartTossing", ({game}) => {
 			setGameCopy(game);
 			setGamePhase("tossing");
@@ -31,7 +35,6 @@ const GameRoom = ({socket, game, getRoomCode}) => {
 		});
 
 		socket.on("GameAborted", () => {
-			console.log("oooh he left");
 			alert("you won, he left!!");
 			navigate("/");
 			return;

@@ -1,5 +1,6 @@
-import React from "react";
+import React, {useState} from "react";
 import PlayerResult from "./PlayerResult";
+import {Crown, Copy, Loader2} from "lucide-react";
 
 const ResultsModal = ({
 	game,
@@ -7,6 +8,7 @@ const ResultsModal = ({
 	handleHomeButtonClick,
 	handleRematchButtonClick,
 }) => {
+	let [wantToRematch, setWantToRematch] = useState(false);
 	let didIWin =
 		(isLeader && game.gameWinner == 0) ||
 		(!isLeader && game.gameWinner == 1);
@@ -83,11 +85,23 @@ const ResultsModal = ({
 						className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-semibold transition-colors">
 						Home
 					</button>
-					{/* <button
-						onClick={handleRematchButtonClick}
-						className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors">
-						Rematch
-					</button> */}
+					<button
+						onClick={() => {
+							setWantToRematch(true);
+							handleRematchButtonClick();
+						}}
+						className={`flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors ${
+							wantToRematch && "bg-blue-700"
+						}`}>
+						{wantToRematch ? (
+							<span className="flex gap-4 justify-center">
+								Waiting
+								<Loader2 className="animate-spin animate-fade-in" />
+							</span>
+						) : (
+							"Rematch"
+						)}
+					</button>
 				</div>
 			</div>
 		</div>

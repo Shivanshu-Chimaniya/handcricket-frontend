@@ -10,7 +10,7 @@ const WaitingRoom = ({getRoomCode, socket, gameCopy}) => {
 
 	const roomCode = getRoomCode();
 	const navigate = useNavigate();
-	console.log("waiting room");
+
 	useEffect(() => {
 		setIsLeader(game.leader.socketId === socket.id);
 		if (game.players.length === 2) {
@@ -19,7 +19,6 @@ const WaitingRoom = ({getRoomCode, socket, gameCopy}) => {
 
 		socket.on("PlayerJoined", async ({game}) => {
 			setGame(game);
-			console.log(game);
 			if (game.players.length === 2) {
 				setCanStart(true);
 			}
